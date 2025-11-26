@@ -140,7 +140,8 @@ label{display:block;margin-bottom:6px;font-weight:500;font-size:12px}
 <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#A56744;text-decoration:underline">📎 키 발급 받기</a><br>
 * 키는 로컬에만 저장됩니다<br>
 * v1 API (안정 버전) 사용<br>
-* 자동 모델 선택 (1.5-flash → 1.5-pro → pro)
+* 최신 모델 자동 선택<br>
+* 2.0-flash-exp → 1.5-flash-latest → 1.5-pro-latest
 </div>
 </div>
 </div>
@@ -468,11 +469,15 @@ step9:{hook:'',logline:'',synopsis:'',charArch:'',market:'',director:''}
 let charCounter=0,subCharCounter=0,bgCounter=0,sceneCounter=0,shotCounter=0;
 let apiKey='';
 
-// Gemini API 모델 목록 (우선순위 순서)
+// Gemini API 모델 목록 (우선순위 순서 - 최신 버전)
 const GEMINI_MODELS=[
-'gemini-1.5-flash',  // 가장 최신, 빠르고 안정적
-'gemini-1.5-pro',    // 고성능 모델
-'gemini-pro'         // 기본 모델
+'gemini-2.0-flash-exp',      // 2.0 실험 버전 (최신, 가장 빠름)
+'gemini-1.5-flash-latest',   // 1.5 Flash 최신 안정 버전
+'gemini-1.5-pro-latest',     // 1.5 Pro 최신 안정 버전 (고성능)
+'gemini-1.5-flash',          // 1.5 Flash 기본
+'gemini-1.5-pro',            // 1.5 Pro 기본
+'gemini-1.0-pro-latest',     // 1.0 Pro 최신
+'gemini-pro'                 // 레거시 모델
 ];
 let currentModelIndex=0;
 
