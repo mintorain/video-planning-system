@@ -141,9 +141,9 @@ label{display:block;margin-bottom:6px;font-weight:500;font-size:12px}
 * 키는 로컬에만 저장됩니다<br>
 * v1 API (안정 버전) 사용<br>
 * 작업별 최적화 모델 사용<br>
-* 빠른 작업: 2.5-flash<br>
-* 고급 작업: 3-pro-preview<br>
-* 이미지: 2.5-flash-image
+* 빠른 작업: 2.0-flash-exp<br>
+* 고급 작업: 1.5-pro-latest<br>
+* 이미지: 1.5-flash-latest
 </div>
 </div>
 </div>
@@ -471,23 +471,23 @@ step9:{hook:'',logline:'',synopsis:'',charArch:'',market:'',director:''}
 let charCounter=0,subCharCounter=0,bgCounter=0,sceneCounter=0,shotCounter=0;
 let apiKey='';
 
-// Gemini API 모델 설정 (작업별 최적화)
+// Gemini API 모델 설정 (작업별 최적화 - 실제 사용 가능한 모델)
 const GEMINI_MODELS={
-// 빠른 텍스트 생성 (제목, 캐릭터명)
-quick:'gemini-2.5-flash',
-// 고급 텍스트 생성 (줄거리, 세계관, 시나리오)
-advanced:'gemini-3-pro-preview',
-// 이미지 생성
-image:'gemini-2.5-flash-image',
-// 폴백 모델 목록
+// 빠른 텍스트 생성 (제목, 캐릭터명) - 최신 실험 모델
+quick:'gemini-2.0-flash-exp',
+// 고급 텍스트 생성 (줄거리, 세계관, 시나리오) - 고성능 안정 모델
+advanced:'gemini-1.5-pro-latest',
+// 이미지 생성 - 텍스트 모델 사용 (이미지 프롬프트 생성)
+image:'gemini-1.5-flash-latest',
+// 폴백 모델 목록 (위에서 아래 순서로 시도)
 fallback:[
-'gemini-2.0-flash-exp',
-'gemini-1.5-flash-latest',
-'gemini-1.5-pro-latest',
-'gemini-1.5-flash',
-'gemini-1.5-pro',
-'gemini-1.0-pro-latest',
-'gemini-pro'
+'gemini-2.0-flash-exp',      // 최신 실험 모델
+'gemini-1.5-flash-latest',   // 1.5 Flash 최신
+'gemini-1.5-pro-latest',     // 1.5 Pro 최신
+'gemini-1.5-flash',          // 1.5 Flash
+'gemini-1.5-pro',            // 1.5 Pro
+'gemini-1.0-pro-latest',     // 1.0 Pro 최신
+'gemini-pro'                 // 레거시
 ]
 };
 let currentFallbackIndex=0;
