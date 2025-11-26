@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 3 — 큐시트 및 KEY 이미지</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #FFFFFF;
+            color: #000000;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 300px;
+            background-color: #f8f8f8;
+            border-right: 2px solid #e0e0e0;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 2px solid #A56744;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h1 {
+            font-size: 20px;
+            font-weight: bold;
+            color: #A56744;
+        }
+
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px 60px;
+        }
+
+        .content-header {
+            margin-bottom: 40px;
+            border-bottom: 3px solid #A56744;
+            padding-bottom: 20px;
+        }
+
+        .content-header h2 {
+            font-size: 28px;
+            color: #A56744;
+            margin-bottom: 10px;
+        }
+
+        /* Tone & Manner Section */
+        .tone-section {
+            background-color: #fff5e6;
+            border: 2px solid #A56744;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .tone-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .tone-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #A56744;
+        }
+
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background-color: #ccc;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .switch.active {
+            background-color: #4CAF50;
+        }
+
+        .switch-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background-color: #fff;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .switch.active .switch-slider {
+            transform: translateX(30px);
+        }
+
+        .upload-area {
+            border: 3px dashed #A56744;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            background-color: #fafafa;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            background-color: #f0f0f0;
+        }
+
+        .upload-area input[type="file"] {
+            display: none;
+        }
+
+        /* 큐시트 섹션 */
+        .cuesheet-section {
+            margin-bottom: 40px;
+        }
+
+        .cuesheet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        /* 씬 아코디언 */
+        .scene-accordion {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .scene-header {
+            background-color: #f5f5f5;
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+
+        .scene-header:hover {
+            background-color: #ebebeb;
+        }
+
+        .scene-header.active {
+            background-color: #A56744;
+            color: #fff;
+        }
+
+        .scene-title {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .scene-time {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .scene-header.active .scene-time {
+            color: #fff;
+        }
+
+        .scene-content {
+            display: none;
+            padding: 20px;
+            background-color: #fafafa;
+        }
+
+        .scene-content.active {
+            display: block;
+        }
+
+        /* 샷 카드 */
+        .shot-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #fff;
+        }
+
+        .shot-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .shot-title {
+            font-weight: bold;
+            color: #A56744;
+        }
+
+        /* 6섹션 프롬프트 */
+        .prompt-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .prompt-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .prompt-label {
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #A56744;
+        }
+
+        .prompt-input {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .prompt-input:focus {
+            outline: none;
+            border-color: #A56744;
+        }
+
+        .prompt-input::placeholder {
+            color: #aaa;
+        }
+
+        /* 연관 선택 */
+        .relation-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .relation-select {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .relation-select:focus {
+            outline: none;
+            border-color: #A56744;
+        }
+
+        /* KEY 이미지 미리보기 */
+        .key-image-preview {
+            width: 100%;
+            height: 400px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .key-image-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .key-image-placeholder {
+            text-align: center;
+            color: #999;
+        }
+
+        .generating-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #A56744;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 버튼 */
+        .btn {
+            padding: 12px 30px;
+            border: 2px solid #A56744;
+            background-color: #A56744;
+            color: #000000;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn:hover:not(:disabled) {
+            background-color: #8d5739;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background-color: #FFFFFF;
+            color: #000000;
+            border: 2px solid #A56744;
+        }
+
+        .btn-secondary:hover {
+            background-color: #f5f5f5;
+        }
+
+        .btn-generate {
+            background-color: #4CAF50;
+            color: #FFFFFF;
+        }
+
+        .btn-generate:hover {
+            background-color: #45a049;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* 액션 버튼 */
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        /* 자동 생성 영어 프롬프트 */
+        .auto-prompt {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #333;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .auto-prompt-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #4CAF50;
+        }
+
+        .auto-prompt-text {
+            font-family: 'Courier New', monospace;
+            line-height: 1.6;
+        }
+
+        /* 모달 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            max-width: 95%;
+            max-height: 95%;
+            position: relative;
+        }
+
+        .modal-content img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            font-size: 36px;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .note {
+            padding: 15px;
+            background-color: #fff5e6;
+            border-left: 4px solid #A56744;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .save-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 20px;
+            font-size: 13px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+
+        .save-status.show {
+            opacity: 1;
+        }
+
+        .add-shot-btn {
+            width: 100%;
+            padding: 12px;
+            border: 2px dashed #A56744;
+            background-color: transparent;
+            color: #A56744;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .add-shot-btn:hover {
+            background-color: #f5f5f5;
+        }
+
+        .warning {
+            color: #d32f2f;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .info-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            background-color: #e3f2fd;
+            color: #1976d2;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>Module 3 — 큐시트</h1>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="content-header">
+            <h2>8단계: 큐시트 및 KEY 이미지 제작</h2>
+            <p>5막 구조를 기반으로 큐시트를 생성하고 KEY 이미지를 제작합니다.</p>
+        </div>
+
+        <!-- Tone & Manner Reference -->
+        <div class="tone-section">
+            <div class="tone-header">
+                <div class="tone-title">🎨 Tone & Manner Reference</div>
+                <div class="toggle-switch">
+                    <span id="toneToggleLabel">Auto Match: OFF</span>
+                    <div class="switch" id="toneToggle">
+                        <div class="switch-slider"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="upload-area" id="toneUpload">
+                <div style="font-size: 36px; margin-bottom: 10px;">🎭</div>
+                <p>톤앤매너 레퍼런스 이미지를 업로드하세요</p>
+                <p style="font-size: 12px; color: #666; margin-top: 10px;">
+                    업로드 시 모든 KEY 이미지에 색감/조명/대비/질감/분위기가 자동 반영됩니다
+                </p>
+                <input type="file" accept="image/*" id="toneFile">
+            </div>
+            <div id="tonePreview" class="hidden" style="margin-top: 15px; text-align: center;">
+                <img id="toneImg" style="max-width: 300px; border-radius: 8px; border: 2px solid #A56744;">
+                <div style="margin-top: 10px;">
+                    <span class="info-tag">TONEREF_ID: TONE_001</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="note">
+            ※ 1단계에서 설정한 러닝타임을 기준으로 10초 단위 씬(Scene)이 자동 분할됩니다.
+            각 씬은 여러 샷(Shot)으로 구성되며, 캐릭터/배경은 Module 2에서 제작한 자산이 자동 연동됩니다.
+        </div>
+
+        <!-- 큐시트 자동 생성 -->
+        <div class="cuesheet-section">
+            <div class="cuesheet-header">
+                <h3 style="color: #A56744; font-size: 20px;">큐시트</h3>
+                <div class="button-group">
+                    <button class="btn btn-generate" onclick="autoGenerateCuesheet()">
+                        🎲 AI로 큐시트 자동 생성!
+                    </button>
+                    <button class="btn btn-secondary btn-small" onclick="addScene()">
+                        + 씬 추가
+                    </button>
+                </div>
+            </div>
+
+            <div id="scenesContainer">
+                <!-- 씬 아코디언이 여기에 추가됩니다 -->
+            </div>
+        </div>
+
+        <!-- 액션 버튼 -->
+        <div class="action-buttons">
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="alert('Module 2의 7단계로 이동')">이전으로</button>
+            </div>
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="downloadAllKeyImages()">전체 KEY 이미지 다운로드</button>
+                <button class="btn btn-secondary" onclick="downloadWord()">워드 다운로드</button>
+                <button class="btn" onclick="alert('9단계는 아직 구현되지 않았습니다.')">다음으로</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 이미지 확대 모달 -->
+    <div class="modal" id="imageModal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <img id="modalImage" src="">
+        </div>
+    </div>
+
+    <!-- 저장 상태 -->
+    <div class="save-status" id="saveStatus">자동 저장됨</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/docx@7.8.2/build/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+
+    <script>
+        let workflowData = {
+            toneReference: {
+                id: null,
+                imageData: null,
+                autoMatch: false
+            },
+            scenes: []
+        };
+
+        let sceneCounter = 0;
+        let shotCounter = 0;
+
+        // 가상 캐릭터/배경 데이터 (Module 2에서 가져온다고 가정)
+        const characters = [
+            { id: 'CHAR_001', name: '주인공' },
+            { id: 'CHAR_002', name: '조연1' },
+            { id: 'CHAR_003', name: '악역' }
+        ];
+
+        const backgrounds = [
+            { id: 'BACK_001', name: '학교 교실' },
+            { id: 'BACK_002', name: '공원' },
+            { id: 'BACK_003', name: '카페' }
+        ];
+
+        // 초기화
+        function init() {
+            loadData();
+            setupToneUpload();
+            setupToneToggle();
+
+            // 임시: 샘플 씬 생성
+            addScene();
+        }
+
+        // Tone & Manner 업로드
+        function setupToneUpload() {
+            const area = document.getElementById('toneUpload');
+            const input = document.getElementById('toneFile');
+
+            area.addEventListener('click', () => input.click());
+
+            area.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                area.style.backgroundColor = '#fff5e6';
+            });
+
+            area.addEventListener('dragleave', () => {
+                area.style.backgroundColor = '#fafafa';
+            });
+
+            area.addEventListener('drop', (e) => {
+                e.preventDefault();
+                area.style.backgroundColor = '#fafafa';
+                if (e.dataTransfer.files.length > 0) {
+                    handleToneUpload(e.dataTransfer.files[0]);
+                }
+            });
+
+            input.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleToneUpload(e.target.files[0]);
+                }
+            });
+        }
+
+        function handleToneUpload(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                workflowData.toneReference.imageData = e.target.result;
+                workflowData.toneReference.id = 'TONE_001';
+
+                document.getElementById('tonePreview').classList.remove('hidden');
+                document.getElementById('toneImg').src = e.target.result;
+
+                // 토글 자동 ON
+                const toggle = document.getElementById('toneToggle');
+                toggle.classList.add('active');
+                workflowData.toneReference.autoMatch = true;
+                document.getElementById('toneToggleLabel').textContent = 'Auto Match: ON';
+
+                saveData();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Tone Toggle
+        function setupToneToggle() {
+            const toggle = document.getElementById('toneToggle');
+            toggle.addEventListener('click', () => {
+                toggle.classList.toggle('active');
+                workflowData.toneReference.autoMatch = toggle.classList.contains('active');
+                document.getElementById('toneToggleLabel').textContent =
+                    workflowData.toneReference.autoMatch ? 'Auto Match: ON' : 'Auto Match: OFF';
+                saveData();
+            });
+        }
+
+        // 씬 추가
+        function addScene() {
+            const sceneId = sceneCounter++;
+            const sceneNum = sceneId + 1;
+            const startTime = sceneId * 10;
+            const endTime = startTime + 10;
+
+            const scene = {
+                id: sceneId,
+                number: sceneNum,
+                startTime: startTime,
+                endTime: endTime,
+                shots: []
+            };
+
+            workflowData.scenes.push(scene);
+
+            const container = document.getElementById('scenesContainer');
+            const accordion = document.createElement('div');
+            accordion.className = 'scene-accordion';
+            accordion.id = `scene-${sceneId}`;
+
+            accordion.innerHTML = `
+                <div class="scene-header" onclick="toggleScene(${sceneId})">
+                    <div>
+                        <span class="scene-title">씬 ${sceneNum}</span>
+                        <span class="scene-time" style="margin-left: 15px;">
+                            ${formatTime(startTime)} - ${formatTime(endTime)}
+                        </span>
+                    </div>
+                    <div>▼</div>
+                </div>
+                <div class="scene-content" id="scene-content-${sceneId}">
+                    <div id="shots-${sceneId}"></div>
+                    <button class="add-shot-btn" onclick="addShot(${sceneId})">+ 샷 추가</button>
+                </div>
+            `;
+
+            container.appendChild(accordion);
+
+            // 첫 샷 자동 추가
+            addShot(sceneId);
+
+            saveData();
+        }
+
+        // 샷 추가
+        function addShot(sceneId) {
+            const shotId = shotCounter++;
+            const scene = workflowData.scenes.find(s => s.id === sceneId);
+            const shotNum = scene.shots.length + 1;
+
+            const shot = {
+                id: shotId,
+                number: shotNum,
+                sceneId: sceneId,
+                prompt: {
+                    scene: '',
+                    subject: '',
+                    camera: '',
+                    lighting: '',
+                    mood: '',
+                    style: ''
+                },
+                relations: {
+                    character1: null,
+                    character2: null,
+                    background: null
+                },
+                keyImage: null,
+                autoPrompt: ''
+            };
+
+            scene.shots.push(shot);
+
+            const container = document.getElementById(`shots-${sceneId}`);
+            const shotCard = document.createElement('div');
+            shotCard.className = 'shot-card';
+            shotCard.id = `shot-${shotId}`;
+
+            shotCard.innerHTML = `
+                <div class="shot-header">
+                    <div class="shot-title">샷 ${shotNum}</div>
+                    <button class="btn btn-secondary btn-small" onclick="removeShot(${sceneId}, ${shotId})">삭제</button>
+                </div>
+
+                <div class="key-image-preview" onclick="viewKeyImage(${shotId})" id="key-preview-${shotId}">
+                    <div class="key-image-placeholder">
+                        <div style="font-size: 48px; margin-bottom: 10px;">🖼️</div>
+                        <p>KEY 이미지를 생성하세요</p>
+                    </div>
+                </div>
+
+                <div class="auto-prompt hidden" id="auto-prompt-${shotId}">
+                    <div class="auto-prompt-label">🤖 자동 생성된 영어 프롬프트</div>
+                    <div class="auto-prompt-text" id="auto-prompt-text-${shotId}"></div>
+                </div>
+
+                <h4 style="margin-bottom: 15px; color: #A56744;">6섹션 프롬프트</h4>
+                <div class="prompt-grid">
+                    <div class="prompt-section">
+                        <div class="prompt-label">[장면] 배경/시간/공간</div>
+                        <textarea class="prompt-input" id="prompt-scene-${shotId}"
+                            placeholder="예: 밝은 실내, 아이의 방. 낮 시간대. 햇살이 드는 따뜻한 공간."
+                            oninput="saveData()"></textarea>
+                    </div>
+                    <div class="prompt-section">
+                        <div class="prompt-label">[피사체] 주요 대상</div>
+                        <textarea class="prompt-input" id="prompt-subject-${shotId}"
+                            placeholder="예: 아이의 시선에 놓인 장난감들(로봇/인형/봉제인형)."
+                            oninput="saveData()"></textarea>
+                    </div>
+                    <div class="prompt-section">
+                        <div class="prompt-label">[카메라] 구도/앵글</div>
+                        <textarea class="prompt-input" id="prompt-camera-${shotId}"
+                            placeholder="예: 아이 눈높이 로우 앵글 클로즈업, 깊이감 있는 포커스."
+                            oninput="saveData()"></textarea>
+                    </div>
+                    <div class="prompt-section">
+                        <div class="prompt-label">[조명] 빛/색감</div>
+                        <textarea class="prompt-input" id="prompt-lighting-${shotId}"
+                            placeholder="예: 부드러운 자연광, 파스텔 톤(노랑·분홍·파랑)."
+                            oninput="saveData()"></textarea>
+                    </div>
+                    <div class="prompt-section">
+                        <div class="prompt-label">[분위기] 감정/무드</div>
+                        <textarea class="prompt-input" id="prompt-mood-${shotId}"
+                            placeholder="예: 순수함, 기쁨, 향수, 포근한 순간의 감성."
+                            oninput="saveData()"></textarea>
+                    </div>
+                    <div class="prompt-section">
+                        <div class="prompt-label">[스타일] 렌더링</div>
+                        <textarea class="prompt-input" id="prompt-style-${shotId}"
+                            placeholder="예: 3D 애니메이션, 따뜻한 시네마틱 비주얼."
+                            oninput="saveData()"></textarea>
+                    </div>
+                </div>
+
+                <h4 style="margin-bottom: 15px; color: #A56744;">연관 자산 선택</h4>
+                <div class="relation-grid">
+                    <div>
+                        <div class="prompt-label">연관 캐릭터 1</div>
+                        <select class="relation-select" id="char1-${shotId}" onchange="saveData()">
+                            <option value="">선택 안 함</option>
+                            ${characters.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div>
+                        <div class="prompt-label">연관 캐릭터 2</div>
+                        <select class="relation-select" id="char2-${shotId}" onchange="saveData()">
+                            <option value="">선택 안 함</option>
+                            ${characters.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div>
+                        <div class="prompt-label">연관 배경</div>
+                        <select class="relation-select" id="bg-${shotId}" onchange="saveData()">
+                            <option value="">선택 안 함</option>
+                            ${backgrounds.map(b => `<option value="${b.id}">${b.name}</option>`).join('')}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="button-group" style="margin-top: 20px;">
+                    <button class="btn btn-generate" onclick="generateKeyImage(${shotId})">
+                        🎨 KEY 이미지 생성
+                    </button>
+                    <button class="btn btn-secondary btn-small" onclick="regenerateKeyImage(${shotId})">
+                        🔄 재생성
+                    </button>
+                    <button class="btn btn-secondary btn-small" onclick="downloadKeyImage(${shotId})">
+                        💾 이미지 다운로드
+                    </button>
+                </div>
+            `;
+
+            container.appendChild(shotCard);
+            saveData();
+        }
+
+        // 샷 삭제
+        function removeShot(sceneId, shotId) {
+            const scene = workflowData.scenes.find(s => s.id === sceneId);
+            scene.shots = scene.shots.filter(s => s.id !== shotId);
+            document.getElementById(`shot-${shotId}`).remove();
+            saveData();
+        }
+
+        // 씬 토글
+        function toggleScene(sceneId) {
+            const header = document.querySelector(`#scene-${sceneId} .scene-header`);
+            const content = document.getElementById(`scene-content-${sceneId}`);
+
+            header.classList.toggle('active');
+            content.classList.toggle('active');
+        }
+
+        // KEY 이미지 생성
+        async function generateKeyImage(shotId) {
+            const shot = findShot(shotId);
+
+            // 6섹션 프롬프트 수집
+            shot.prompt.scene = document.getElementById(`prompt-scene-${shotId}`).value;
+            shot.prompt.subject = document.getElementById(`prompt-subject-${shotId}`).value;
+            shot.prompt.camera = document.getElementById(`prompt-camera-${shotId}`).value;
+            shot.prompt.lighting = document.getElementById(`prompt-lighting-${shotId}`).value;
+            shot.prompt.mood = document.getElementById(`prompt-mood-${shotId}`).value;
+            shot.prompt.style = document.getElementById(`prompt-style-${shotId}`).value;
+
+            // 연관 자산 수집
+            shot.relations.character1 = document.getElementById(`char1-${shotId}`).value;
+            shot.relations.character2 = document.getElementById(`char2-${shotId}`).value;
+            shot.relations.background = document.getElementById(`bg-${shotId}`).value;
+
+            // 영어 프롬프트 자동 생성
+            const autoPrompt = generateEnglishPrompt(shot);
+            shot.autoPrompt = autoPrompt;
+
+            // 자동 프롬프트 표시
+            document.getElementById(`auto-prompt-${shotId}`).classList.remove('hidden');
+            document.getElementById(`auto-prompt-text-${shotId}`).textContent = autoPrompt;
+
+            // 이미지 생성 시뮬레이션
+            const preview = document.getElementById(`key-preview-${shotId}`);
+            preview.innerHTML = `
+                <div class="generating-overlay">
+                    <div class="spinner"></div>
+                    <p>KEY 이미지 생성 중...</p>
+                    <p style="font-size: 12px; margin-top: 10px;">
+                        ${workflowData.toneReference.autoMatch ? '🎨 Tone & Manner 적용 중' : ''}
+                    </p>
+                </div>
+            `;
+
+            // 시뮬레이션: 3초 후 이미지 표시
+            setTimeout(() => {
+                const dummyImage = `https://via.placeholder.com/800x450/A56744/FFFFFF?text=KEY+Image+Shot+${shot.number}`;
+                shot.keyImage = dummyImage;
+
+                preview.innerHTML = `<img src="${dummyImage}" alt="KEY Image">`;
+                saveData();
+                showSaveStatus();
+            }, 3000);
+        }
+
+        // 영어 프롬프트 자동 생성
+        function generateEnglishPrompt(shot) {
+            const sections = [
+                shot.prompt.scene,
+                shot.prompt.subject,
+                shot.prompt.camera,
+                shot.prompt.lighting,
+                shot.prompt.mood,
+                shot.prompt.style
+            ].filter(s => s).join(', ');
+
+            const suffix = 'high resolution, ultra detailed, best quality';
+            let fullPrompt = sections ? `${sections}, ${suffix}` : suffix;
+
+            // 연관 자산 정보 추가
+            const meta = [];
+            if (shot.relations.character1) {
+                const char = characters.find(c => c.id === shot.relations.character1);
+                meta.push(`CHAR_ID: ${shot.relations.character1} (${char.name})`);
+            }
+            if (shot.relations.character2) {
+                const char = characters.find(c => c.id === shot.relations.character2);
+                meta.push(`CHAR_ID: ${shot.relations.character2} (${char.name})`);
+            }
+            if (shot.relations.background) {
+                const bg = backgrounds.find(b => b.id === shot.relations.background);
+                meta.push(`BACK_ID: ${shot.relations.background} (${bg.name})`);
+            }
+
+            if (workflowData.toneReference.autoMatch && workflowData.toneReference.id) {
+                meta.push(`TONEREF_ID: ${workflowData.toneReference.id}`);
+                meta.push('match_tone: true');
+            }
+
+            if (meta.length > 0) {
+                fullPrompt += '\n\n[NanoBanana Meta]\n' + meta.join('\n');
+            }
+
+            return fullPrompt;
+        }
+
+        // 재생성
+        function regenerateKeyImage(shotId) {
+            generateKeyImage(shotId);
+        }
+
+        // 이미지 다운로드
+        function downloadKeyImage(shotId) {
+            const shot = findShot(shotId);
+            if (shot.keyImage) {
+                const a = document.createElement('a');
+                a.href = shot.keyImage;
+                a.download = `KEY_Shot_${shot.number}.png`;
+                a.click();
+            } else {
+                alert('먼저 KEY 이미지를 생성해주세요.');
+            }
+        }
+
+        // 이미지 확대 보기
+        function viewKeyImage(shotId) {
+            const shot = findShot(shotId);
+            if (shot.keyImage) {
+                document.getElementById('modalImage').src = shot.keyImage;
+                document.getElementById('imageModal').classList.add('active');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').classList.remove('active');
+        }
+
+        // 전체 KEY 이미지 다운로드
+        function downloadAllKeyImages() {
+            alert('전체 KEY 이미지를 다운로드합니다. (실제 구현 시 Zip 또는 다중 다운로드)');
+        }
+
+        // AI 자동 큐시트 생성
+        function autoGenerateCuesheet() {
+            if (confirm('5막 구조를 기반으로 큐시트를 자동 생성합니다. 기존 내용이 있다면 추가됩니다. 계속하시겠습니까?')) {
+                // 시뮬레이션: 3개 씬 자동 생성
+                for (let i = 0; i < 3; i++) {
+                    addScene();
+                }
+                alert('큐시트가 자동 생성되었습니다. 각 샷의 프롬프트는 AI가 제안한 내용입니다. 자유롭게 수정하실 수 있습니다.');
+            }
+        }
+
+        // 워드 다운로드
+        async function downloadWord() {
+            alert('Module 3 큐시트 내용을 워드 파일로 다운로드합니다.');
+        }
+
+        // 유틸리티
+        function findShot(shotId) {
+            for (let scene of workflowData.scenes) {
+                const shot = scene.shots.find(s => s.id === shotId);
+                if (shot) return shot;
+            }
+            return null;
+        }
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function saveData() {
+            localStorage.setItem('videoWorkflowData_module3', JSON.stringify(workflowData));
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('videoWorkflowData_module3');
+            if (saved) {
+                workflowData = JSON.parse(saved);
+            }
+        }
+
+        function showSaveStatus() {
+            const status = document.getElementById('saveStatus');
+            status.classList.add('show');
+            setTimeout(() => status.classList.remove('show'), 2000);
+        }
+
+        // 모달 클릭으로 닫기
+        document.getElementById('imageModal').addEventListener('click', (e) => {
+            if (e.target.id === 'imageModal') {
+                closeModal();
+            }
+        });
+
+        // 초기화
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영상 기획안 제작 워크플로우 - 완전판</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #FFFFFF;
+            color: #000000;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 좌측 사이드바 */
+        .sidebar {
+            width: 300px;
+            background-color: #f8f8f8;
+            border-right: 2px solid #e0e0e0;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 2px solid #A56744;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h1 {
+            font-size: 20px;
+            font-weight: bold;
+            color: #A56744;
+        }
+
+        .module {
+            margin-bottom: 10px;
+        }
+
+        .module-title {
+            padding: 12px 20px;
+            background-color: #A56744;
+            color: #FFFFFF;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .step-item {
+            padding: 12px 20px 12px 40px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 3px solid transparent;
+        }
+
+        .step-item:hover {
+            background-color: #e8e8e8;
+        }
+
+        .step-item.active {
+            background-color: #fff;
+            border-left-color: #A56744;
+            font-weight: bold;
+        }
+
+        .step-item .icon {
+            font-size: 18px;
+        }
+
+        /* 메인 콘텐츠 */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px 60px;
+        }
+
+        .content-header {
+            margin-bottom: 40px;
+            border-bottom: 3px solid #A56744;
+            padding-bottom: 20px;
+        }
+
+        .content-header h2 {
+            font-size: 28px;
+            color: #A56744;
+            margin-bottom: 10px;
+        }
+
+        .content-header p {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Hero Section (Module 4) */
+        .hero-section {
+            text-align: center;
+            margin-bottom: 60px;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #A56744 0%, #8d5739 100%);
+            border-radius: 16px;
+            color: white;
+        }
+
+        .hero-title {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .hero-subtitle {
+            font-size: 18px;
+            opacity: 0.95;
+        }
+
+        /* 스텝 컨테이너 */
+        .step-container {
+            display: none;
+        }
+
+        .step-container.active {
+            display: block;
+        }
+
+        /* 폼 섹션 */
+        .form-section {
+            margin-bottom: 40px;
+        }
+
+        .form-section h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #A56744;
+            font-weight: bold;
+        }
+
+        .selection-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .selection-button {
+            padding: 12px 24px;
+            border: 2px solid #A56744;
+            background-color: #FFFFFF;
+            color: #000000;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .selection-button:hover {
+            background-color: #f5f5f5;
+        }
+
+        .selection-button.selected {
+            background-color: #A56744;
+            color: #FFFFFF;
+        }
+
+        /* 입력 필드 */
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #A56744;
+        }
+
+        textarea.input-field {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .input-with-button {
+            display: flex;
+            gap: 10px;
+        }
+
+        .random-btn {
+            padding: 12px 20px;
+            border: 2px solid #A56744;
+            background-color: #FFFFFF;
+            color: #000000;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .random-btn:hover {
+            background-color: #A56744;
+            color: #FFFFFF;
+        }
+
+        /* 버튼 */
+        .btn {
+            padding: 12px 30px;
+            border: 2px solid #A56744;
+            background-color: #A56744;
+            color: #000000;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn:hover:not(:disabled) {
+            background-color: #8d5739;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background-color: #FFFFFF;
+            color: #000000;
+            border: 2px solid #A56744;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background-color: #f5f5f5;
+        }
+
+        .btn-generate {
+            background-color: #4CAF50;
+            color: #FFFFFF;
+        }
+
+        .btn-generate:hover {
+            background-color: #45a049;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        /* 액션 버튼 */
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        /* 아코디언 */
+        .accordion-item {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            background-color: #fff;
+        }
+
+        .accordion-header {
+            background-color: #f5f5f5;
+            padding: 20px 25px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .accordion-header:hover {
+            background-color: #ebebeb;
+        }
+
+        .accordion-header.active {
+            background-color: #A56744;
+            color: white;
+        }
+
+        .accordion-title {
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .accordion-arrow {
+            font-size: 20px;
+            transition: transform 0.3s;
+        }
+
+        .accordion-header.active .accordion-arrow {
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            display: none;
+            padding: 30px 25px;
+            background-color: #fafafa;
+        }
+
+        .accordion-content.active {
+            display: block;
+        }
+
+        /* 저장 상태 */
+        .save-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 20px;
+            font-size: 13px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+
+        .save-status.show {
+            opacity: 1;
+        }
+
+        .note {
+            padding: 15px;
+            background-color: #fff5e6;
+            border-left: 4px solid #A56744;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .char-counter {
+            text-align: right;
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        /* 로딩 오버레이 */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #A56744;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 프로그레스 바 */
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background-color: #e0e0e0;
+            border-radius: 3px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #A56744 0%, #8d5739 100%);
+            transition: width 0.3s;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 13px;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        /* 캐릭터/배경 카드 등 (간소화 버전) */
+        .asset-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            background-color: #fafafa;
+        }
+
+        .asset-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #A56744;
+        }
+
+        .asset-card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #A56744;
+        }
+    </style>
+</head>
+<body>
+    <!-- 좌측 사이드바 -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>영상 기획안 제작</h1>
+        </div>
+
+        <!-- Module 1: 스토리 -->
+        <div class="module">
+            <div class="module-title">Module 1 — 스토리</div>
+            <div class="step-item active" data-step="1">
+                <span class="icon">🎬</span>
+                <span>1단계: 제작 형식</span>
+            </div>
+            <div class="step-item" data-step="2">
+                <span class="icon">✏️</span>
+                <span>2단계: 제목/줄거리</span>
+            </div>
+            <div class="step-item" data-step="3">
+                <span class="icon">👥</span>
+                <span>3단계: 캐릭터</span>
+            </div>
+            <div class="step-item" data-step="4">
+                <span class="icon">📖</span>
+                <span>4단계: 5막 구조</span>
+            </div>
+        </div>
+
+        <!-- Module 2: 이미지 -->
+        <div class="module">
+            <div class="module-title">Module 2 — Visual Assets</div>
+            <div class="step-item" data-step="5">
+                <span class="icon">🎨</span>
+                <span>5단계: 주인공 시트</span>
+            </div>
+            <div class="step-item" data-step="6">
+                <span class="icon">🖼️</span>
+                <span>6단계: 추가 캐릭터</span>
+            </div>
+            <div class="step-item" data-step="7">
+                <span class="icon">🏞️</span>
+                <span>7단계: 배경</span>
+            </div>
+        </div>
+
+        <!-- Module 3: 큐시트 -->
+        <div class="module">
+            <div class="module-title">Module 3 — 큐시트</div>
+            <div class="step-item" data-step="8">
+                <span class="icon">🔑</span>
+                <span>8단계: KEY 이미지</span>
+            </div>
+        </div>
+
+        <!-- Module 4: 기획안 -->
+        <div class="module">
+            <div class="module-title">Module 4 — 기획안</div>
+            <div class="step-item" data-step="9">
+                <span class="icon">📄</span>
+                <span>9단계: 기획안 총 정리</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 메인 콘텐츠 -->
+    <div class="main-content">
+        <!-- 프로그레스 바 -->
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 11%;"></div>
+        </div>
+        <div class="progress-text" id="progressText">1단계 / 9단계 완료 (11%)</div>
+
+        <!-- 1단계: 제작 형식 선택 -->
+        <div class="step-container active" data-step="1">
+            <div class="content-header">
+                <h2>1단계: 제작 형식 선택</h2>
+                <p>영상의 기본 형식과 길이, 세계관을 선택해주세요.</p>
+            </div>
+
+            <div class="form-section">
+                <h3>(1) 제작 형태 선택</h3>
+                <div class="selection-group" id="productionType">
+                    <button class="selection-button" data-value="영화">영화</button>
+                    <button class="selection-button" data-value="2D 애니메이션">2D 애니메이션</button>
+                    <button class="selection-button" data-value="3D 애니메이션">3D 애니메이션</button>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>(2) 영상 길이 선택</h3>
+                <div class="selection-group" id="videoLength">
+                    <button class="selection-button" data-value="29초">29초</button>
+                    <button class="selection-button" data-value="1분">1분</button>
+                    <button class="selection-button" data-value="1분 30초">1분 30초</button>
+                    <button class="selection-button" data-value="3분">3분</button>
+                    <button class="selection-button" data-value="5분">5분</button>
+                    <button class="selection-button" data-value="8분">8분</button>
+                    <button class="selection-button" data-value="10분">10분</button>
+                    <button class="selection-button" data-value="30분">30분</button>
+                </div>
+                <p style="color: #666; font-size: 13px;">
+                    ※ 선택한 러닝타임은 이후 큐시트 제작 단계에서 자동 적용되며 절대 초과할 수 없습니다.
+                </p>
+            </div>
+
+            <div class="form-section">
+                <h3>(3) 배경이 되는 세계관 선택</h3>
+                <div class="selection-group" id="worldview">
+                    <button class="selection-button" data-value="한국">한국</button>
+                    <button class="selection-button" data-value="중국">중국</button>
+                    <button class="selection-button" data-value="일본">일본</button>
+                    <button class="selection-button" data-value="홍콩">홍콩</button>
+                    <button class="selection-button" data-value="유럽">유럽</button>
+                    <button class="selection-button" data-value="미국">미국</button>
+                    <button class="selection-button" data-value="영국">영국</button>
+                    <button class="selection-button" data-value="판타지">판타지</button>
+                    <button class="selection-button" data-value="다크판타지">다크판타지</button>
+                    <button class="selection-button" data-value="로맨스판타지">로맨스판타지</button>
+                    <button class="selection-button" data-value="아카데미물">아카데미물</button>
+                    <button class="selection-button" data-value="키즈">키즈</button>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <div class="button-group">
+                    <button class="btn btn-secondary" disabled>이전으로</button>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="downloadWord()">워드 다운로드</button>
+                    <button class="btn" onclick="goToStep(2)">다음으로</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2단계: 제목/줄거리/세계관 -->
+        <div class="step-container" data-step="2">
+            <div class="content-header">
+                <h2>2단계: 제목 / 줄거리 / 세계관</h2>
+                <p>작품의 제목과 줄거리, 세계관을 작성해주세요.</p>
+            </div>
+
+            <div class="form-section">
+                <h3>(1) 제목</h3>
+                <div class="input-with-button">
+                    <input type="text" class="input-field" id="title" placeholder="작품 제목" oninput="saveData()">
+                    <button class="random-btn" onclick="alert('제목 자동 생성 기능')">🎲</button>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>(2) 간단 줄거리</h3>
+                <textarea class="input-field" id="plot" placeholder="줄거리를 입력하세요..." maxlength="5000" oninput="saveData()"></textarea>
+                <div class="char-counter" id="plotCount">0 / 5000</div>
+            </div>
+
+            <div class="form-section">
+                <h3>(3) 세계관 요약</h3>
+                <textarea class="input-field" id="worldDescription" placeholder="세계관을 설명하세요..." maxlength="5000" oninput="saveData()"></textarea>
+                <div class="char-counter" id="worldCount">0 / 5000</div>
+            </div>
+
+            <div class="action-buttons">
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="goToStep(1)">이전으로</button>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="downloadWord()">워드 다운로드</button>
+                    <button class="btn" onclick="goToStep(3)">다음으로</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3~8단계: 간소화 버전 (핵심 기능만) -->
+        <div class="step-container" data-step="3">
+            <div class="content-header">
+                <h2>3단계: 캐릭터 빌드업</h2>
+                <p>주요 캐릭터를 설정해주세요.</p>
+            </div>
+            <div class="note">※ 캐릭터 추가 및 상세 설정 기능이 여기에 포함됩니다.</div>
+            <div class="action-buttons">
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="goToStep(2)">이전으로</button>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="downloadWord()">워드 다운로드</button>
+                    <button class="btn" onclick="goToStep(4)">다음으로</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="step-container" data-step="4">
+            <div class="content-header">
+                <h2>4단계: 5막 구조</h2>
+                <p>AI가 2단계 내용을 기반으로 5막 구조를 자동 생성합니다.</p>
+            </div>
+            <button class="btn btn-generate" onclick="alert('5막 구조 자동 생성')">🎲 자동 생성</button>
+            <div class="action-buttons">
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="goToStep(3)">이전으로</button>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="downloadWord()">워드 다운로드</button>
+                    <button class="btn" onclick="goToStep(5)">다음으로</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="step-container" data-step="5">
+            <div class="content-header">
+                <h2>5단계: 주인공 캐릭터 시트</h2>
+                <p>주인공 캐릭터의 일관된 비주얼 자산을 생성합니다.</p>
+            </div>
+            <div class="note">※ 레퍼런스 이미지 업로드 및 자동 생성 기능</div>
+            <div class="action-buttons">
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="goToStep(4)">이전으로</button>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="downloadWord()">워드 다운로드</button>
+                    <button class="btn" onclick="goToStep(6)">다음으로</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="step-container" data-step="6">
+            <div class="content-header">
+                <h2>6단계: 추가 캐릭터 시트</h2>
+                <p>조연, 악역 등 추가 캐릭터의 비주얼 자산을 생성합니다.</p>
+            </div>
+            <div class="note">※ 캐릭터 추가 및 시트 생성 기능</div>
+            <div class="action-buttons">
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="goToStep(5)">이전으로</button>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="downloadWord()">워드 다운로드</button>
+                    <button class="btn" onclick="goToStep(7)">다음으로</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="step-container" data-step="7">
+            <div class="content-header">
+                <h2>7단계: 기본 배경 제작</h2>
+                <p>다양한 시점의 배경 이미지를 생성합니다.</p>
+            </div>
+            <div class="note">※ 6개 시점(드론뷰/탑다운/아이레벨/로우앵글/클로즈업/익스트림) 자동 생성</div>
+            <div class="action-buttons">
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="goToStep(6)">이전으로</button>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="downloadWord()">워드 다운로드</button>
+                    <button class="btn" onclick="goToStep(8)">다음으로</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="step-container" data-step="8">
+            <div class="content-header">
+                <h2>8단계: 큐시트 및 KEY 이미지</h2>
+                <p>5막 구조를 기반으로 큐시트를 생성하고 KEY 이미지를 제작합니다.</p>
+            </div>
+            <button class="btn btn-generate" onclick="alert('큐시트 자동 생성')">🎲 AI로 큐시트 자동 생성!</button>
+            <div class="action-buttons">
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="goToStep(7)">이전으로</button>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="downloadWord()">워드 다운로드</button>
+                    <button class="btn" onclick="goToStep(9)">다음으로</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 9단계: 기획안 총 정리 (상세 버전) -->
+        <div class="step-container" data-step="9">
+            <div class="hero-section">
+                <div class="hero-title">HOOK으로 잡고, Logline으로 설득합니다</div>
+                <div class="hero-subtitle">당신의 스토리를 완성된 기획안으로</div>
+            </div>
+
+            <div class="content-header">
+                <h2>9단계: 기획안 총정리</h2>
+                <p>Module 1~3의 모든 내용을 분석하여 투자자를 설득할 수 있는 기획안을 완성합니다.</p>
+            </div>
+
+            <div class="note">
+                ※ 1~5번 항목은 Gemini PRO가 이전 단계의 내용을 분석하여 자동 생성합니다.
+                생성된 내용은 자유롭게 수정 가능합니다. 6번 감독의 의도는 직접 작성해주세요.
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-generate" onclick="autoGenerateAll()">
+                    🤖 AI로 1~5번 항목 자동 생성
+                </button>
+            </div>
+
+            <!-- 6가지 아코디언 -->
+            <div style="margin-top: 40px;">
+                <!-- 1. Hook -->
+                <div class="accordion-item">
+                    <div class="accordion-header" onclick="toggleAccordion(0)">
+                        <div class="accordion-title">
+                            <span>🎣</span>
+                            <span>1. Hook (1줄)</span>
+                        </div>
+                        <span class="accordion-arrow">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p style="margin-bottom: 15px; color: #666;">감정과 관심을 즉시 붙잡는 한 줄 펀치라인입니다.</p>
+                        <textarea class="input-field" id="hook" placeholder="AI가 자동 생성할 Hook..." maxlength="200" oninput="saveData()" style="min-height: 80px;"></textarea>
+                        <div class="char-counter" id="hookCount">0 / 200</div>
+                    </div>
+                </div>
+
+                <!-- 2. Logline -->
+                <div class="accordion-item">
+                    <div class="accordion-header" onclick="toggleAccordion(1)">
+                        <div class="accordion-title">
+                            <span>📝</span>
+                            <span>2. Logline (3줄)</span>
+                        </div>
+                        <span class="accordion-arrow">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p style="margin-bottom: 15px; color: #666;">영화의 핵심 줄거리와 구조를 짧게 설명합니다.</p>
+                        <textarea class="input-field" id="logline" placeholder="AI가 자동 생성할 Logline..." maxlength="500" oninput="saveData()"></textarea>
+                        <div class="char-counter" id="loglineCount">0 / 500</div>
+                    </div>
+                </div>
+
+                <!-- 3. Synopsis -->
+                <div class="accordion-item">
+                    <div class="accordion-header" onclick="toggleAccordion(2)">
+                        <div class="accordion-title">
+                            <span>📖</span>
+                            <span>3. Synopsis</span>
+                        </div>
+                        <span class="accordion-arrow">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <textarea class="input-field" id="synopsis" placeholder="스토리 전체의 흐름을 시간 순서대로..." maxlength="1500" oninput="saveData()"></textarea>
+                    </div>
+                </div>
+
+                <!-- 4. 캐릭터 아치 -->
+                <div class="accordion-item">
+                    <div class="accordion-header" onclick="toggleAccordion(3)">
+                        <div class="accordion-title">
+                            <span>📊</span>
+                            <span>4. 캐릭터 아치</span>
+                        </div>
+                        <span class="accordion-arrow">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <textarea class="input-field" id="characterArch" placeholder="캐릭터의 변화 과정..." maxlength="1000" oninput="saveData()"></textarea>
+                    </div>
+                </div>
+
+                <!-- 5. 시장성 -->
+                <div class="accordion-item">
+                    <div class="accordion-header" onclick="toggleAccordion(4)">
+                        <div class="accordion-title">
+                            <span>💰</span>
+                            <span>5. 시장성 / 타겟 / 경쟁작</span>
+                        </div>
+                        <span class="accordion-arrow">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <textarea class="input-field" id="market" placeholder="시장 분석 및 타겟층..." maxlength="1000" oninput="saveData()"></textarea>
+                    </div>
+                </div>
+
+                <!-- 6. 감독의 의도 -->
+                <div class="accordion-item">
+                    <div class="accordion-header" onclick="toggleAccordion(5)">
+                        <div class="accordion-title">
+                            <span>🎬</span>
+                            <span>6. 감독의 의도 (직접 작성)</span>
+                        </div>
+                        <span class="accordion-arrow">▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p style="margin-bottom: 15px; color: #d32f2f; font-weight: bold;">※ 이 섹션은 직접 작성해주세요 (5000자 이내)</p>
+                        <textarea class="input-field" id="directorStatement" placeholder="작품을 만들게 된 동기, 전달하고자 하는 메시지..." maxlength="5000" oninput="saveData()" style="min-height: 300px;"></textarea>
+                        <div class="char-counter" id="directorCount">0 / 5000</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="goToStep(8)">이전으로</button>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="downloadFinalWord()">
+                        📥 최종 기획안 다운로드 (전체 통합)
+                    </button>
+                    <button class="btn" onclick="alert('기획안 제작 완료!')">완료</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 로딩 오버레이 -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h3 style="color: #A56744; margin-bottom: 10px;">AI 생성 중...</h3>
+            <p style="color: #666;">잠시만 기다려주세요...</p>
+        </div>
+    </div>
+
+    <!-- 저장 상태 -->
+    <div class="save-status" id="saveStatus">자동 저장됨</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/docx@7.8.2/build/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+
+    <script>
+        let currentStep = 1;
+        let workflowData = {
+            step1: { productionType: '', videoLength: '', worldview: '' },
+            step2: { title: '', plot: '', worldDescription: '' },
+            step9: { hook: '', logline: '', synopsis: '', characterArch: '', market: '', directorStatement: '' }
+        };
+
+        // 초기화
+        function init() {
+            loadData();
+            setupSelectionButtons();
+            setupSidebarNavigation();
+            updateProgress();
+        }
+
+        // 단계 이동
+        function goToStep(step) {
+            // 1단계 검증
+            if (currentStep === 1 && step > 1) {
+                if (!workflowData.step1.productionType || !workflowData.step1.videoLength || !workflowData.step1.worldview) {
+                    alert('모든 항목을 선택해주세요.');
+                    return;
+                }
+            }
+
+            currentStep = step;
+
+            // 모든 단계 숨김
+            document.querySelectorAll('.step-container').forEach(c => c.classList.remove('active'));
+            document.querySelector(`.step-container[data-step="${step}"]`).classList.add('active');
+
+            // 사이드바 업데이트
+            document.querySelectorAll('.step-item').forEach(item => {
+                item.classList.remove('active');
+                if (parseInt(item.dataset.step) === step) {
+                    item.classList.add('active');
+                }
+            });
+
+            updateProgress();
+            window.scrollTo(0, 0);
+        }
+
+        // 프로그레스 바 업데이트
+        function updateProgress() {
+            const progress = (currentStep / 9) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = `${currentStep}단계 / 9단계 완료 (${Math.round(progress)}%)`;
+        }
+
+        // 선택 버튼 설정
+        function setupSelectionButtons() {
+            // 제작 형태
+            document.querySelectorAll('#productionType .selection-button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('#productionType .selection-button').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    workflowData.step1.productionType = btn.dataset.value;
+                    saveData();
+                });
+            });
+
+            // 영상 길이
+            document.querySelectorAll('#videoLength .selection-button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('#videoLength .selection-button').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    workflowData.step1.videoLength = btn.dataset.value;
+                    saveData();
+                });
+            });
+
+            // 세계관
+            document.querySelectorAll('#worldview .selection-button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('#worldview .selection-button').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    workflowData.step1.worldview = btn.dataset.value;
+                    saveData();
+                });
+            });
+        }
+
+        // 사이드바 네비게이션
+        function setupSidebarNavigation() {
+            document.querySelectorAll('.step-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    goToStep(parseInt(item.dataset.step));
+                });
+            });
+        }
+
+        // 아코디언 토글
+        function toggleAccordion(index) {
+            const items = document.querySelectorAll('.accordion-item');
+            const header = items[index].querySelector('.accordion-header');
+            const content = items[index].querySelector('.accordion-content');
+            header.classList.toggle('active');
+            content.classList.toggle('active');
+        }
+
+        // AI 자동 생성
+        function autoGenerateAll() {
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.classList.add('active');
+
+            setTimeout(() => {
+                document.getElementById('hook').value = '작은 별에서 온 왕자가 지구에서 발견하는 진짜 사랑의 의미';
+                document.getElementById('logline').value = '어린 왕자는 자신의 별에 있는 장미를 떠나 여러 별을 여행한다. 지구에 도착한 그는 여우를 만나 "길들임"의 의미를 배우고, 진정한 사랑은 책임감에서 비롯된다는 것을 깨닫는다.';
+                document.getElementById('synopsis').value = '어린 왕자는 작은 소행성에서 홀로 살아간다. 그의 별에는 특별한 장미가 있지만, 장미의 까다로움에 지친 왕자는 여행을 떠난다...';
+                document.getElementById('characterArch').value = '순수하지만 미숙한 어린 왕자가 여행을 통해 사랑의 의미를 깨닫고 성숙해진다.';
+                document.getElementById('market').value = '가족 관객 대상 감성 애니메이션. 전 연령층 소구 가능. 글로벌 원작 인지도 활용.';
+
+                overlay.classList.remove('active');
+                alert('AI 자동 생성 완료!');
+                saveData();
+            }, 2000);
+        }
+
+        // 데이터 저장/로드
+        function saveData() {
+            if (document.getElementById('title')) {
+                workflowData.step2.title = document.getElementById('title').value;
+                workflowData.step2.plot = document.getElementById('plot').value;
+                workflowData.step2.worldDescription = document.getElementById('worldDescription').value;
+            }
+            if (document.getElementById('hook')) {
+                workflowData.step9.hook = document.getElementById('hook').value;
+                workflowData.step9.logline = document.getElementById('logline').value;
+                workflowData.step9.synopsis = document.getElementById('synopsis').value;
+                workflowData.step9.characterArch = document.getElementById('characterArch').value;
+                workflowData.step9.market = document.getElementById('market').value;
+                workflowData.step9.directorStatement = document.getElementById('directorStatement').value;
+            }
+
+            localStorage.setItem('videoWorkflowData_complete', JSON.stringify(workflowData));
+            showSaveStatus();
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('videoWorkflowData_complete');
+            if (saved) {
+                workflowData = JSON.parse(saved);
+            }
+        }
+
+        function showSaveStatus() {
+            const status = document.getElementById('saveStatus');
+            status.classList.add('show');
+            setTimeout(() => status.classList.remove('show'), 2000);
+        }
+
+        // 워드 다운로드
+        async function downloadWord() {
+            alert(`현재 단계(${currentStep})까지의 내용을 워드로 다운로드합니다.`);
+        }
+
+        async function downloadFinalWord() {
+            alert('Module 1~4 전체 내용을 통합하여 최종 기획안을 다운로드합니다.');
+        }
+
+        // 초기화 실행
+        init();
+    </script>
+</body>
+</html>

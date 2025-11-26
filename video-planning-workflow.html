@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영상 기획안 제작 워크플로우</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #FFFFFF;
+            color: #000000;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 좌측 사이드바 */
+        .sidebar {
+            width: 300px;
+            background-color: #f8f8f8;
+            border-right: 2px solid #e0e0e0;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 2px solid #A56744;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h1 {
+            font-size: 20px;
+            font-weight: bold;
+            color: #A56744;
+        }
+
+        .module {
+            margin-bottom: 10px;
+        }
+
+        .module-title {
+            padding: 12px 20px;
+            background-color: #A56744;
+            color: #FFFFFF;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .step-item {
+            padding: 12px 20px 12px 40px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 3px solid transparent;
+        }
+
+        .step-item:hover:not(.disabled) {
+            background-color: #e8e8e8;
+        }
+
+        .step-item.active {
+            background-color: #fff;
+            border-left-color: #A56744;
+            font-weight: bold;
+        }
+
+        .step-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .step-item .icon {
+            font-size: 18px;
+        }
+
+        /* 메인 콘텐츠 */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px 60px;
+        }
+
+        .content-header {
+            margin-bottom: 40px;
+            border-bottom: 3px solid #A56744;
+            padding-bottom: 20px;
+        }
+
+        .content-header h2 {
+            font-size: 28px;
+            color: #A56744;
+            margin-bottom: 10px;
+        }
+
+        .content-header p {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* 폼 섹션 */
+        .form-section {
+            margin-bottom: 40px;
+        }
+
+        .form-section h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #A56744;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .selection-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .selection-button {
+            padding: 12px 24px;
+            border: 2px solid #A56744;
+            background-color: #FFFFFF;
+            color: #000000;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .selection-button:hover {
+            background-color: #f5f5f5;
+        }
+
+        .selection-button.selected {
+            background-color: #A56744;
+            color: #FFFFFF;
+        }
+
+        /* 입력 필드 */
+        .input-with-button {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #A56744;
+        }
+
+        .input-field::placeholder {
+            color: #999;
+        }
+
+        textarea.input-field {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .random-btn {
+            padding: 12px 20px;
+            border: 2px solid #A56744;
+            background-color: #FFFFFF;
+            color: #000000;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .random-btn:hover {
+            background-color: #A56744;
+            color: #FFFFFF;
+        }
+
+        /* 액션 버튼 */
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: 2px solid #A56744;
+            background-color: #A56744;
+            color: #000000;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .btn:hover:not(:disabled) {
+            background-color: #8d5739;
+            border-color: #8d5739;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background-color: #FFFFFF;
+            color: #000000;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background-color: #f5f5f5;
+        }
+
+        /* 저장 상태 표시 */
+        .save-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 20px;
+            font-size: 13px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+
+        .save-status.show {
+            opacity: 1;
+        }
+
+        /* 버튼 그룹 */
+        .button-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        /* 숨김 */
+        .hidden {
+            display: none;
+        }
+
+        /* 스텝 컨테이너 */
+        .step-container {
+            display: none;
+        }
+
+        .step-container.active {
+            display: block;
+        }
+
+        /* 캐릭터 카드 */
+        .character-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            background-color: #fafafa;
+        }
+
+        .character-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #A56744;
+        }
+
+        .character-card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #A56744;
+        }
+
+        .remove-character-btn {
+            padding: 8px 16px;
+            border: 2px solid #d32f2f;
+            background-color: #FFFFFF;
+            color: #d32f2f;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .remove-character-btn:hover {
+            background-color: #d32f2f;
+            color: #FFFFFF;
+        }
+
+        .add-character-btn {
+            width: 100%;
+            padding: 15px;
+            border: 2px dashed #A56744;
+            background-color: #FFFFFF;
+            color: #A56744;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .add-character-btn:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* 토글 스위치 */
+        .toggle-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .toggle-btn {
+            padding: 10px 20px;
+            border: 2px solid #A56744;
+            background-color: #FFFFFF;
+            color: #000000;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-btn.active {
+            background-color: #A56744;
+            color: #FFFFFF;
+        }
+
+        /* 체크박스 그룹 */
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-left: 20px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* 5막 구조 섹션 */
+        .act-section {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            background-color: #fafafa;
+        }
+
+        .act-section h4 {
+            color: #A56744;
+            font-size: 17px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 자동 생성 버튼 */
+        .auto-generate-btn {
+            padding: 12px 30px;
+            border: 2px solid #4CAF50;
+            background-color: #4CAF50;
+            color: #FFFFFF;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin-bottom: 30px;
+        }
+
+        .auto-generate-btn:hover {
+            background-color: #45a049;
+            border-color: #45a049;
+        }
+
+        /* 입력 필드 카운터 */
+        .char-counter {
+            text-align: right;
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        /* 안티 포스 컨테이너 */
+        .anti-force-container {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .input-row > div {
+            flex: 1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 좌측 사이드바 -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>영상 기획안 제작</h1>
+        </div>
+
+        <!-- Module 1: 스토리 -->
+        <div class="module">
+            <div class="module-title">Module 1 — 스토리</div>
+            <div class="step-item active" data-step="1">
+                <span class="icon">🎬</span>
+                <span>1단계: 제작 형식</span>
+            </div>
+            <div class="step-item" data-step="2">
+                <span class="icon">✏️</span>
+                <span>2단계: 제목/줄거리/세계관</span>
+            </div>
+            <div class="step-item" data-step="3">
+                <span class="icon">👥</span>
+                <span>3단계: 캐릭터</span>
+            </div>
+            <div class="step-item" data-step="4">
+                <span class="icon">📖</span>
+                <span>4단계: 5막 구조</span>
+            </div>
+        </div>
+
+        <!-- Module 2: 이미지 -->
+        <div class="module">
+            <div class="module-title">Module 2 — 이미지</div>
+            <div class="step-item disabled" data-step="5">
+                <span class="icon">🎨</span>
+                <span>5단계: 주인공 시트</span>
+            </div>
+            <div class="step-item disabled" data-step="6">
+                <span class="icon">🖼️</span>
+                <span>6단계: 추가 캐릭터 시트</span>
+            </div>
+            <div class="step-item disabled" data-step="7">
+                <span class="icon">🏞️</span>
+                <span>7단계: 배경</span>
+            </div>
+        </div>
+
+        <!-- Module 3: 큐시트 -->
+        <div class="module">
+            <div class="module-title">Module 3 — 큐시트</div>
+            <div class="step-item disabled" data-step="8">
+                <span class="icon">🔑</span>
+                <span>8단계: KEY 이미지</span>
+            </div>
+        </div>
+
+        <!-- Module 4: 기획안 -->
+        <div class="module">
+            <div class="module-title">Module 4 — 기획안</div>
+            <div class="step-item disabled" data-step="9">
+                <span class="icon">📄</span>
+                <span>9단계: 기획안 총 정리</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 메인 콘텐츠 -->
+    <div class="main-content">
+        <!-- 1단계: 제작 형식 선택 -->
+        <div class="step-container active" data-step="1">
+            <div class="content-header">
+                <h2>1단계: 제작 형식 선택</h2>
+                <p>영상의 기본 형식과 길이, 세계관을 선택해주세요.</p>
+            </div>
+
+            <div class="form-section">
+                <h3>(1) 제작 형태 선택</h3>
+                <div class="selection-group" id="productionType">
+                    <button class="selection-button" data-value="영화">영화</button>
+                    <button class="selection-button" data-value="2D 애니메이션">2D 애니메이션</button>
+                    <button class="selection-button" data-value="3D 애니메이션">3D 애니메이션</button>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>(2) 영상 길이 선택</h3>
+                <div class="selection-group" id="videoLength">
+                    <button class="selection-button" data-value="29초">29초</button>
+                    <button class="selection-button" data-value="1분">1분</button>
+                    <button class="selection-button" data-value="1분 30초">1분 30초</button>
+                    <button class="selection-button" data-value="3분">3분</button>
+                    <button class="selection-button" data-value="5분">5분</button>
+                    <button class="selection-button" data-value="8분">8분</button>
+                    <button class="selection-button" data-value="10분">10분</button>
+                    <button class="selection-button" data-value="30분">30분</button>
+                </div>
+                <p style="color: #666; font-size: 13px; margin-top: 10px;">
+                    ※ 선택한 러닝타임은 이후 큐시트 제작 단계에서 자동 적용되며 절대 초과할 수 없습니다.
+                </p>
+            </div>
+
+            <div class="form-section">
+                <h3>(3) 배경이 되는 세계관 선택</h3>
+                <div class="selection-group" id="worldview">
+                    <button class="selection-button" data-value="한국">한국</button>
+                    <button class="selection-button" data-value="중국">중국</button>
+                    <button class="selection-button" data-value="일본">일본</button>
+                    <button class="selection-button" data-value="홍콩">홍콩</button>
+                    <button class="selection-button" data-value="유럽">유럽</button>
+                    <button class="selection-button" data-value="미국">미국</button>
+                    <button class="selection-button" data-value="영국">영국</button>
+                    <button class="selection-button" data-value="판타지">판타지</button>
+                    <button class="selection-button" data-value="다크판타지">다크판타지</button>
+                    <button class="selection-button" data-value="로맨스판타지">로맨스판타지</button>
+                    <button class="selection-button" data-value="아카데미물">아카데미물</button>
+                    <button class="selection-button" data-value="키즈">키즈</button>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <div class="button-group">
+                    <button class="btn btn-secondary" disabled>이전으로</button>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="downloadWord()">워드 다운로드</button>
+                    <button class="btn" onclick="goToStep(2)">다음으로</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2단계: 제목/줄거리/세계관 입력 -->
+        <div class="step-container" data-step="2">
+            <div class="content-header">
+                <h2>2단계: 제목 / 줄거리 / 세계관 입력</h2>
+                <p>작품의 제목과 줄거리, 세계관을 작성해주세요.</p>
+            </div>
+
+            <div class="form-section">
+                <h3>(1) 제목</h3>
+                <div class="input-with-button">
+                    <input type="text" class="input-field" id="title" placeholder="어린 왕자" maxlength="100">
+                    <button class="random-btn" onclick="generateTitle()">🎲</button>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>(2) 간단 줄거리</h3>
+                <div class="input-with-button">
+                    <textarea class="input-field" id="plot" placeholder="어느 날 비행사는 사막에 불시착한다. 그곳에서 작은 별에서 온 어린 왕자를 만난다. 어린 왕자는 자신의 별에 있는 장미꽃 때문에 여행을 떠났다고 말한다. 여러 별을 여행하며 다양한 어른들을 만나고, 마지막으로 지구에 도착한다. 지구에서 여우를 만나 '길들임'의 의미를 배우고, 자신의 장미가 특별한 이유를 깨닫는다." maxlength="5000" oninput="updateCharCount('plot', 'plotCount', 5000)"></textarea>
+                    <button class="random-btn" onclick="generatePlot()">🎲</button>
+                </div>
+                <div class="char-counter" id="plotCount">0 / 5000</div>
+            </div>
+
+            <div class="form-section">
+                <h3>(3) 세계관 요약</h3>
+                <div class="input-with-button">
+                    <textarea class="input-field" id="worldDescription" placeholder="우주 곳곳에는 작은 소행성들이 떠다니고, 각각의 별에는 독특한 인물이 살고 있다. 어린 왕자의 별은 매우 작아서 하루에 몇 번이고 일몰을 볼 수 있다. 지구는 여러 별 중 하나일 뿐이지만, 가장 복잡하고 다양한 존재들이 사는 곳이다." maxlength="5000" oninput="updateCharCount('worldDescription', 'worldCount', 5000)"></textarea>
+                    <button class="random-btn" onclick="generateWorld()">🎲</button>
+                </div>
+                <div class="char-counter" id="worldCount">0 / 5000</div>
+            </div>
+
+            <div class="action-buttons">
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="goToStep(1)">이전으로</button>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="downloadWord()">워드 다운로드</button>
+                    <button class="btn" onclick="goToStep(3)">다음으로</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3단계: 캐릭터 빌드업 -->
+        <div class="step-container" data-step="3">
+            <div class="content-header">
+                <h2>3단계: 캐릭터 빌드업</h2>
+                <p>주요 캐릭터를 설정해주세요.</p>
+            </div>
+
+            <div id="charactersContainer"></div>
+
+            <button class="add-character-btn" onclick="addCharacter()">+ 캐릭터 추가</button>
+
+            <div class="action-buttons">
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="goToStep(2)">이전으로</button>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="downloadWord()">워드 다운로드</button>
+                    <button class="btn" onclick="goToStep(4)">다음으로</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4단계: 5막 구조 -->
+        <div class="step-container" data-step="4">
+            <div class="content-header">
+                <h2>4단계: 5막 구조 자동 확장</h2>
+                <p>AI가 2단계 내용을 기반으로 5막 구조를 자동 생성합니다.</p>
+            </div>
+
+            <button class="auto-generate-btn" onclick="generate5Acts()">🎲 자동 생성</button>
+
+            <div class="act-section">
+                <h4>① 발단 (Setup)</h4>
+                <textarea class="input-field" id="act1" placeholder="후킹 요소를 포함한 발단" maxlength="2000" oninput="updateCharCount('act1', 'act1Count', 2000)"></textarea>
+                <div class="char-counter" id="act1Count">0 / 2000</div>
+            </div>
+
+            <div class="act-section">
+                <h4>② 전개 (Development)</h4>
+                <textarea class="input-field" id="act2" placeholder="이야기의 전개" maxlength="2000" oninput="updateCharCount('act2', 'act2Count', 2000)"></textarea>
+                <div class="char-counter" id="act2Count">0 / 2000</div>
+            </div>
+
+            <div class="act-section">
+                <h4>③ 위기 (Crisis)</h4>
+                <textarea class="input-field" id="act3" placeholder="위기 상황" maxlength="2000" oninput="updateCharCount('act3', 'act3Count', 2000)"></textarea>
+                <div class="char-counter" id="act3Count">0 / 2000</div>
+            </div>
+
+            <div class="act-section">
+                <h4>④ 절정 (Climax)</h4>
+                <textarea class="input-field" id="act4" placeholder="코믹 또는 반전 요소를 포함한 절정" maxlength="2000" oninput="updateCharCount('act4', 'act4Count', 2000)"></textarea>
+                <div class="char-counter" id="act4Count">0 / 2000</div>
+            </div>
+
+            <div class="act-section">
+                <h4>⑤ 결말 (Resolution)</h4>
+                <textarea class="input-field" id="act5" placeholder="이야기의 결말" maxlength="2000" oninput="updateCharCount('act5', 'act5Count', 2000)"></textarea>
+                <div class="char-counter" id="act5Count">0 / 2000</div>
+            </div>
+
+            <div class="action-buttons">
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="goToStep(3)">이전으로</button>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="downloadWord()">워드 다운로드</button>
+                    <button class="btn" onclick="alert('5단계는 아직 구현되지 않았습니다.')">다음으로</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 저장 상태 표시 -->
+    <div class="save-status" id="saveStatus">자동 저장됨</div>
+
+    <!-- docx 라이브러리 -->
+    <script src="https://cdn.jsdelivr.net/npm/docx@7.8.2/build/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+
+    <script>
+        // 현재 단계
+        let currentStep = 1;
+
+        // 데이터 저장소
+        let workflowData = {
+            step1: {
+                productionType: '',
+                videoLength: '',
+                worldview: ''
+            },
+            step2: {
+                title: '',
+                plot: '',
+                worldDescription: ''
+            },
+            step3: {
+                characters: []
+            },
+            step4: {
+                act1: '',
+                act2: '',
+                act3: '',
+                act4: '',
+                act5: ''
+            }
+        };
+
+        // localStorage에서 데이터 로드
+        function loadData() {
+            const saved = localStorage.getItem('videoWorkflowData');
+            if (saved) {
+                workflowData = JSON.parse(saved);
+                restoreAllData();
+            }
+        }
+
+        // 모든 데이터 복원
+        function restoreAllData() {
+            // Step 1
+            if (workflowData.step1.productionType) {
+                selectButton('productionType', workflowData.step1.productionType);
+            }
+            if (workflowData.step1.videoLength) {
+                selectButton('videoLength', workflowData.step1.videoLength);
+            }
+            if (workflowData.step1.worldview) {
+                selectButton('worldview', workflowData.step1.worldview);
+            }
+
+            // Step 2
+            if (workflowData.step2.title) {
+                document.getElementById('title').value = workflowData.step2.title;
+            }
+            if (workflowData.step2.plot) {
+                document.getElementById('plot').value = workflowData.step2.plot;
+                updateCharCount('plot', 'plotCount', 5000);
+            }
+            if (workflowData.step2.worldDescription) {
+                document.getElementById('worldDescription').value = workflowData.step2.worldDescription;
+                updateCharCount('worldDescription', 'worldCount', 5000);
+            }
+
+            // Step 3
+            if (workflowData.step3.characters && workflowData.step3.characters.length > 0) {
+                workflowData.step3.characters.forEach((char, index) => {
+                    addCharacter(char, index);
+                });
+            } else {
+                addCharacter();
+            }
+
+            // Step 4
+            if (workflowData.step4.act1) {
+                document.getElementById('act1').value = workflowData.step4.act1;
+                updateCharCount('act1', 'act1Count', 2000);
+            }
+            if (workflowData.step4.act2) {
+                document.getElementById('act2').value = workflowData.step4.act2;
+                updateCharCount('act2', 'act2Count', 2000);
+            }
+            if (workflowData.step4.act3) {
+                document.getElementById('act3').value = workflowData.step4.act3;
+                updateCharCount('act3', 'act3Count', 2000);
+            }
+            if (workflowData.step4.act4) {
+                document.getElementById('act4').value = workflowData.step4.act4;
+                updateCharCount('act4', 'act4Count', 2000);
+            }
+            if (workflowData.step4.act5) {
+                document.getElementById('act5').value = workflowData.step4.act5;
+                updateCharCount('act5', 'act5Count', 2000);
+            }
+        }
+
+        // 버튼 선택 함수
+        function selectButton(groupId, value) {
+            const group = document.getElementById(groupId);
+            if (!group) return;
+            const buttons = group.querySelectorAll('.selection-button');
+            buttons.forEach(btn => {
+                if (btn.dataset.value === value) {
+                    btn.classList.add('selected');
+                } else {
+                    btn.classList.remove('selected');
+                }
+            });
+        }
+
+        // 데이터 저장
+        function saveData() {
+            // Step 2 데이터 수집
+            if (document.getElementById('title')) {
+                workflowData.step2.title = document.getElementById('title').value;
+                workflowData.step2.plot = document.getElementById('plot').value;
+                workflowData.step2.worldDescription = document.getElementById('worldDescription').value;
+            }
+
+            // Step 4 데이터 수집
+            if (document.getElementById('act1')) {
+                workflowData.step4.act1 = document.getElementById('act1').value;
+                workflowData.step4.act2 = document.getElementById('act2').value;
+                workflowData.step4.act3 = document.getElementById('act3').value;
+                workflowData.step4.act4 = document.getElementById('act4').value;
+                workflowData.step4.act5 = document.getElementById('act5').value;
+            }
+
+            localStorage.setItem('videoWorkflowData', JSON.stringify(workflowData));
+            showSaveStatus();
+        }
+
+        // 저장 상태 표시
+        function showSaveStatus() {
+            const status = document.getElementById('saveStatus');
+            status.classList.add('show');
+            setTimeout(() => {
+                status.classList.remove('show');
+            }, 2000);
+        }
+
+        // 글자 수 카운터
+        function updateCharCount(fieldId, counterId, maxLength) {
+            const field = document.getElementById(fieldId);
+            const counter = document.getElementById(counterId);
+            if (field && counter) {
+                counter.textContent = `${field.value.length} / ${maxLength}`;
+            }
+            saveData();
+        }
+
+        // 단계 이동
+        function goToStep(step) {
+            // 1단계 검증
+            if (currentStep === 1 && step > 1) {
+                if (!workflowData.step1.productionType ||
+                    !workflowData.step1.videoLength ||
+                    !workflowData.step1.worldview) {
+                    alert('모든 항목을 선택해주세요.');
+                    return;
+                }
+            }
+
+            // Step 3 캐릭터 데이터 저장
+            if (currentStep === 3) {
+                saveCharacters();
+            }
+
+            currentStep = step;
+
+            // 모든 단계 컨테이너 숨김
+            document.querySelectorAll('.step-container').forEach(container => {
+                container.classList.remove('active');
+            });
+
+            // 현재 단계만 표시
+            const currentContainer = document.querySelector(`.step-container[data-step="${step}"]`);
+            if (currentContainer) {
+                currentContainer.classList.add('active');
+            }
+
+            // 사이드바 업데이트
+            document.querySelectorAll('.step-item').forEach(item => {
+                item.classList.remove('active');
+                if (parseInt(item.dataset.step) === step) {
+                    item.classList.add('active');
+                }
+            });
+
+            // 상단으로 스크롤
+            document.querySelector('.main-content').scrollTop = 0;
+        }
+
+        // 선택 버튼 이벤트 처리
+        function setupSelectionButtons() {
+            // 제작 형태
+            const productionButtons = document.querySelectorAll('#productionType .selection-button');
+            productionButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    productionButtons.forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    workflowData.step1.productionType = btn.dataset.value;
+                    saveData();
+                });
+            });
+
+            // 영상 길이
+            const lengthButtons = document.querySelectorAll('#videoLength .selection-button');
+            lengthButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    lengthButtons.forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    workflowData.step1.videoLength = btn.dataset.value;
+                    saveData();
+                });
+            });
+
+            // 세계관
+            const worldviewButtons = document.querySelectorAll('#worldview .selection-button');
+            worldviewButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    worldviewButtons.forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    workflowData.step1.worldview = btn.dataset.value;
+                    saveData();
+                });
+            });
+        }
+
+        // 사이드바 클릭 이벤트
+        function setupSidebarNavigation() {
+            document.querySelectorAll('.step-item:not(.disabled)').forEach(item => {
+                item.addEventListener('click', () => {
+                    const step = parseInt(item.dataset.step);
+                    goToStep(step);
+                });
+            });
+        }
+
+        // 캐릭터 추가
+        let characterCounter = 0;
+        function addCharacter(characterData = null, index = null) {
+            const id = index !== null ? index : characterCounter++;
+            const container = document.getElementById('charactersContainer');
+
+            const characterCard = document.createElement('div');
+            characterCard.className = 'character-card';
+            characterCard.id = `character-${id}`;
+
+            characterCard.innerHTML = `
+                <div class="character-card-header">
+                    <div class="character-card-title">캐릭터 ${id + 1}</div>
+                    <button class="remove-character-btn" onclick="removeCharacter(${id})">삭제</button>
+                </div>
+
+                <div class="input-row">
+                    <div>
+                        <label>캐릭터 이름</label>
+                        <div class="input-with-button">
+                            <input type="text" class="input-field" id="charName-${id}" placeholder="이름을 입력하세요" value="${characterData?.name || ''}" oninput="saveCharacters()">
+                            <button class="random-btn" onclick="generateCharacterName(${id})">🎲</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-row">
+                    <div>
+                        <label>성별</label>
+                        <div class="selection-group" id="charGender-${id}">
+                            <button class="selection-button ${characterData?.gender === '여성' ? 'selected' : ''}" onclick="selectCharOption(${id}, 'gender', '여성')">여성</button>
+                            <button class="selection-button ${characterData?.gender === '남성' ? 'selected' : ''}" onclick="selectCharOption(${id}, 'gender', '남성')">남성</button>
+                            <button class="selection-button ${characterData?.gender === '무성' ? 'selected' : ''}" onclick="selectCharOption(${id}, 'gender', '무성')">무성</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label>종족</label>
+                        <div class="selection-group" id="charSpecies-${id}">
+                            <button class="selection-button ${characterData?.species === '인간' ? 'selected' : ''}" onclick="selectCharOption(${id}, 'species', '인간')">인간</button>
+                            <button class="selection-button ${characterData?.species === '동물' ? 'selected' : ''}" onclick="selectCharOption(${id}, 'species', '동물')">동물</button>
+                            <button class="selection-button ${characterData?.species === '그 외' ? 'selected' : ''}" onclick="selectCharOption(${id}, 'species', '그 외')">그 외</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <label>역할</label>
+                    <div class="selection-group" id="charRole-${id}">
+                        <button class="selection-button ${characterData?.role === '주인공' ? 'selected' : ''}" onclick="selectCharOption(${id}, 'role', '주인공')">주인공</button>
+                        <button class="selection-button ${characterData?.role === '조연' ? 'selected' : ''}" onclick="selectCharOption(${id}, 'role', '조연')">조연</button>
+                        <button class="selection-button ${characterData?.role === '악역' ? 'selected' : ''}" onclick="selectCharOption(${id}, 'role', '악역')">악역</button>
+                        <button class="selection-button ${characterData?.role === '기타' ? 'selected' : ''}" onclick="selectCharOption(${id}, 'role', '기타')">기타</button>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <label>캐릭터 설정</label>
+                    <textarea class="input-field" id="charDescription-${id}" placeholder="캐릭터 설정을 자유롭게 서술하세요" maxlength="3000" oninput="updateCharCount('charDescription-${id}', 'charDescCount-${id}', 3000); saveCharacters()">${characterData?.description || ''}</textarea>
+                    <div class="char-counter" id="charDescCount-${id}">0 / 3000</div>
+                </div>
+
+                <div class="form-section">
+                    <label>캐릭터가 맞서 싸워야 하는 대상 또는 문제 (안티 포스)</label>
+                    <div class="toggle-group">
+                        <button class="toggle-btn ${!characterData?.hasAntiForce || characterData?.hasAntiForce === false ? 'active' : ''}" onclick="toggleAntiForce(${id}, false)">없음</button>
+                        <button class="toggle-btn ${characterData?.hasAntiForce ? 'active' : ''}" onclick="toggleAntiForce(${id}, true)">있음</button>
+                    </div>
+                    <div class="anti-force-container ${!characterData?.hasAntiForce ? 'hidden' : ''}" id="antiForce-${id}">
+                        <h4 style="margin-bottom: 15px;">이겨내야 할 요인</h4>
+                        <div style="margin-bottom: 15px;">
+                            <strong>외부 요인</strong>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="af-villain-${id}" ${characterData?.antiForce?.includes('악역') ? 'checked' : ''} onchange="saveCharacters()">
+                                    <label for="af-villain-${id}">악역</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="af-disaster-${id}" ${characterData?.antiForce?.includes('자연재해') ? 'checked' : ''} onchange="saveCharacters()">
+                                    <label for="af-disaster-${id}">자연재해</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="af-organization-${id}" ${characterData?.antiForce?.includes('단체 기관') ? 'checked' : ''} onchange="saveCharacters()">
+                                    <label for="af-organization-${id}">단체 기관</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="af-system-${id}" ${characterData?.antiForce?.includes('시스템') ? 'checked' : ''} onchange="saveCharacters()">
+                                    <label for="af-system-${id}">시스템</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <strong>내면 요인</strong>
+                            <div class="checkbox-group">
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="af-illness-${id}" ${characterData?.antiForce?.includes('질병') ? 'checked' : ''} onchange="saveCharacters()">
+                                    <label for="af-illness-${id}">질병</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="af-trauma-${id}" ${characterData?.antiForce?.includes('트라우마') ? 'checked' : ''} onchange="saveCharacters()">
+                                    <label for="af-trauma-${id}">트라우마</label>
+                                </div>
+                                <div class="checkbox-item">
+                                    <input type="checkbox" id="af-other-${id}" ${characterData?.antiForce?.includes('기타') ? 'checked' : ''} onchange="saveCharacters()">
+                                    <label for="af-other-${id}">기타</label>
+                                </div>
+                            </div>
+                            <input type="text" class="input-field" id="af-other-input-${id}" placeholder="기타 내용 입력" value="${characterData?.antiForceOther || ''}" style="margin-top: 10px;" oninput="saveCharacters()">
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(characterCard);
+
+            if (characterData?.description) {
+                updateCharCount(`charDescription-${id}`, `charDescCount-${id}`, 3000);
+            }
+        }
+
+        // 캐릭터 삭제
+        function removeCharacter(id) {
+            const card = document.getElementById(`character-${id}`);
+            if (card) {
+                card.remove();
+                saveCharacters();
+            }
+        }
+
+        // 캐릭터 옵션 선택
+        function selectCharOption(charId, optionType, value) {
+            const groupId = `char${optionType.charAt(0).toUpperCase() + optionType.slice(1)}-${charId}`;
+            const buttons = document.querySelectorAll(`#${groupId} .selection-button`);
+            buttons.forEach(btn => btn.classList.remove('selected'));
+            event.target.classList.add('selected');
+            saveCharacters();
+        }
+
+        // 안티 포스 토글
+        function toggleAntiForce(charId, hasAntiForce) {
+            const container = document.getElementById(`antiForce-${charId}`);
+            const buttons = event.target.parentElement.querySelectorAll('.toggle-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (hasAntiForce) {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+            saveCharacters();
+        }
+
+        // 캐릭터 데이터 저장
+        function saveCharacters() {
+            const characters = [];
+            document.querySelectorAll('.character-card').forEach(card => {
+                const id = card.id.split('-')[1];
+
+                const antiForceElements = [
+                    { id: `af-villain-${id}`, value: '악역' },
+                    { id: `af-disaster-${id}`, value: '자연재해' },
+                    { id: `af-organization-${id}`, value: '단체 기관' },
+                    { id: `af-system-${id}`, value: '시스템' },
+                    { id: `af-illness-${id}`, value: '질병' },
+                    { id: `af-trauma-${id}`, value: '트라우마' },
+                    { id: `af-other-${id}`, value: '기타' }
+                ];
+
+                const antiForce = antiForceElements
+                    .filter(af => document.getElementById(af.id)?.checked)
+                    .map(af => af.value);
+
+                const character = {
+                    name: document.getElementById(`charName-${id}`)?.value || '',
+                    gender: document.querySelector(`#charGender-${id} .selection-button.selected`)?.textContent || '',
+                    species: document.querySelector(`#charSpecies-${id} .selection-button.selected`)?.textContent || '',
+                    role: document.querySelector(`#charRole-${id} .selection-button.selected`)?.textContent || '',
+                    description: document.getElementById(`charDescription-${id}`)?.value || '',
+                    hasAntiForce: !document.getElementById(`antiForce-${id}`)?.classList.contains('hidden'),
+                    antiForce: antiForce,
+                    antiForceOther: document.getElementById(`af-other-input-${id}`)?.value || ''
+                };
+
+                characters.push(character);
+            });
+
+            workflowData.step3.characters = characters;
+            saveData();
+        }
+
+        // 제목 생성
+        function generateTitle() {
+            const plot = workflowData.step2.plot;
+            const world = workflowData.step2.worldDescription;
+
+            if (!plot && !world) {
+                alert('줄거리 또는 세계관을 먼저 입력해주세요.');
+                return;
+            }
+
+            // 예시 제목 (실제로는 AI API를 사용해야 함)
+            const exampleTitles = ['별을 찾아서', '작은 왕자의 여행', '우주의 정원사', '길 잃은 별', '사막의 왕자'];
+            const randomTitle = exampleTitles[Math.floor(Math.random() * exampleTitles.length)];
+            document.getElementById('title').value = randomTitle;
+            saveData();
+        }
+
+        // 줄거리 생성
+        function generatePlot() {
+            const worldview = workflowData.step1.worldview;
+            const examplePlot = `${worldview} 배경의 이야기입니다. 주인공은 평범한 일상을 살아가던 중 특별한 사건을 마주하게 됩니다. 이를 계기로 새로운 세계를 탐험하며 다양한 인물들을 만나게 되고, 자신의 정체성과 삶의 의미를 찾아가는 여정을 시작합니다.`;
+            document.getElementById('plot').value = examplePlot;
+            updateCharCount('plot', 'plotCount', 5000);
+        }
+
+        // 세계관 생성
+        function generateWorld() {
+            const plot = document.getElementById('plot').value;
+            const worldview = workflowData.step1.worldview;
+            const exampleWorld = `${worldview} 스타일의 세계관입니다. 이 세계는 독특한 규칙과 질서를 가지고 있으며, 다양한 문화와 가치관이 공존합니다. 주인공이 살아가는 배경은 현실과 환상이 교차하는 곳으로, 예상치 못한 모험과 만남이 펼쳐집니다.`;
+            document.getElementById('worldDescription').value = exampleWorld;
+            updateCharCount('worldDescription', 'worldCount', 5000);
+        }
+
+        // 캐릭터 이름 생성
+        function generateCharacterName(charId) {
+            const worldview = workflowData.step1.worldview;
+            const exampleNames = {
+                '한국': ['지우', '서준', '하은', '민서'],
+                '일본': ['유키', '하루토', '사쿠라', '소라'],
+                '중국': ['샤오밍', '린', '웨이', '메이'],
+                '판타지': ['아리엘', '루나', '제이든', '엘리시아'],
+                'default': ['알렉스', '조던', '테일러', '모건']
+            };
+
+            const names = exampleNames[worldview] || exampleNames['default'];
+            const randomName = names[Math.floor(Math.random() * names.length)];
+            document.getElementById(`charName-${charId}`).value = randomName;
+            saveCharacters();
+        }
+
+        // 5막 구조 자동 생성
+        function generate5Acts() {
+            const title = workflowData.step2.title || '제목 없음';
+            const plot = workflowData.step2.plot;
+            const characters = workflowData.step3.characters;
+
+            if (!plot) {
+                alert('2단계에서 줄거리를 먼저 작성해주세요.');
+                return;
+            }
+
+            const mainCharacter = characters.find(c => c.role === '주인공');
+            const characterName = mainCharacter?.name || '주인공';
+
+            // 예시 5막 구조 (실제로는 AI API를 사용해야 함)
+            document.getElementById('act1').value = `[후킹] ${characterName}는 평범한 일상을 살아가고 있었다. 하지만 어느 날, 예상치 못한 사건이 발생하면서 모든 것이 변하기 시작한다. 이것은 ${characterName}의 인생을 완전히 바꿀 여정의 시작이었다.`;
+
+            document.getElementById('act2').value = `${characterName}는 새로운 세계를 탐험하며 다양한 인물들을 만난다. 각 만남은 ${characterName}에게 중요한 교훈을 전해주고, 점차 자신의 목적을 깨닫게 된다.`;
+
+            document.getElementById('act3').value = `여정 중 ${characterName}는 큰 위기에 직면한다. ${mainCharacter?.hasAntiForce ? '강력한 적과 맞서야 하는' : '내면의 갈등을 극복해야 하는'} 순간이 찾아온다. 모든 것을 포기하고 싶은 절망의 순간이다.`;
+
+            document.getElementById('act4').value = `[반전] 하지만 ${characterName}는 예상치 못한 방식으로 문제를 해결한다. 이 과정에서 유머러스한 상황이 펼쳐지며, ${characterName}는 진정한 용기의 의미를 깨닫는다.`;
+
+            document.getElementById('act5').value = `여정을 마친 ${characterName}는 처음과는 완전히 다른 사람이 되어 돌아온다. 모든 경험은 ${characterName}를 성장시켰고, 이제 ${characterName}는 자신만의 방식으로 세상을 바라볼 수 있게 되었다.`;
+
+            updateCharCount('act1', 'act1Count', 2000);
+            updateCharCount('act2', 'act2Count', 2000);
+            updateCharCount('act3', 'act3Count', 2000);
+            updateCharCount('act4', 'act4Count', 2000);
+            updateCharCount('act5', 'act5Count', 2000);
+
+            saveData();
+            alert('5막 구조가 자동 생성되었습니다. 자유롭게 수정하실 수 있습니다.');
+        }
+
+        // 워드 다운로드
+        async function downloadWord() {
+            const { Document, Paragraph, TextRun, AlignmentType, HeadingLevel, Packer } = docx;
+
+            const children = [
+                new Paragraph({
+                    text: "영상 기획안",
+                    heading: HeadingLevel.HEADING_1,
+                    alignment: AlignmentType.CENTER,
+                    spacing: { after: 400 }
+                }),
+                new Paragraph({
+                    text: "Module 1 — 스토리",
+                    heading: HeadingLevel.HEADING_2,
+                    spacing: { before: 400, after: 200 }
+                })
+            ];
+
+            // 1단계
+            children.push(
+                new Paragraph({
+                    text: "1단계: 제작 형식 선택",
+                    heading: HeadingLevel.HEADING_3,
+                    spacing: { before: 200, after: 200 }
+                }),
+                new Paragraph({
+                    children: [
+                        new TextRun({ text: "(1) 제작 형태: ", bold: true }),
+                        new TextRun({ text: workflowData.step1.productionType || "미선택" })
+                    ],
+                    spacing: { after: 100 }
+                }),
+                new Paragraph({
+                    children: [
+                        new TextRun({ text: "(2) 영상 길이: ", bold: true }),
+                        new TextRun({ text: workflowData.step1.videoLength || "미선택" })
+                    ],
+                    spacing: { after: 100 }
+                }),
+                new Paragraph({
+                    children: [
+                        new TextRun({ text: "(3) 배경 세계관: ", bold: true }),
+                        new TextRun({ text: workflowData.step1.worldview || "미선택" })
+                    ],
+                    spacing: { after: 300 }
+                })
+            );
+
+            // 2단계 (현재 단계가 2 이상일 때)
+            if (currentStep >= 2) {
+                children.push(
+                    new Paragraph({
+                        text: "2단계: 제목 / 줄거리 / 세계관",
+                        heading: HeadingLevel.HEADING_3,
+                        spacing: { before: 200, after: 200 }
+                    }),
+                    new Paragraph({
+                        children: [
+                            new TextRun({ text: "제목: ", bold: true }),
+                            new TextRun({ text: workflowData.step2.title || "미입력" })
+                        ],
+                        spacing: { after: 100 }
+                    }),
+                    new Paragraph({
+                        children: [
+                            new TextRun({ text: "줄거리: ", bold: true })
+                        ],
+                        spacing: { after: 50 }
+                    }),
+                    new Paragraph({
+                        text: workflowData.step2.plot || "미입력",
+                        spacing: { after: 100 }
+                    }),
+                    new Paragraph({
+                        children: [
+                            new TextRun({ text: "세계관: ", bold: true })
+                        ],
+                        spacing: { after: 50 }
+                    }),
+                    new Paragraph({
+                        text: workflowData.step2.worldDescription || "미입력",
+                        spacing: { after: 300 }
+                    })
+                );
+            }
+
+            // 3단계 (현재 단계가 3 이상일 때)
+            if (currentStep >= 3) {
+                children.push(
+                    new Paragraph({
+                        text: "3단계: 캐릭터 빌드업",
+                        heading: HeadingLevel.HEADING_3,
+                        spacing: { before: 200, after: 200 }
+                    })
+                );
+
+                workflowData.step3.characters.forEach((char, index) => {
+                    children.push(
+                        new Paragraph({
+                            children: [
+                                new TextRun({ text: `캐릭터 ${index + 1}`, bold: true, underline: {} })
+                            ],
+                            spacing: { before: 150, after: 100 }
+                        }),
+                        new Paragraph({
+                            children: [
+                                new TextRun({ text: "이름: ", bold: true }),
+                                new TextRun({ text: char.name || "미입력" })
+                            ],
+                            spacing: { after: 50 }
+                        }),
+                        new Paragraph({
+                            children: [
+                                new TextRun({ text: "성별: ", bold: true }),
+                                new TextRun({ text: char.gender || "미선택" }),
+                                new TextRun({ text: " | 종족: ", bold: true }),
+                                new TextRun({ text: char.species || "미선택" }),
+                                new TextRun({ text: " | 역할: ", bold: true }),
+                                new TextRun({ text: char.role || "미선택" })
+                            ],
+                            spacing: { after: 50 }
+                        }),
+                        new Paragraph({
+                            children: [
+                                new TextRun({ text: "캐릭터 설정: ", bold: true })
+                            ],
+                            spacing: { after: 30 }
+                        }),
+                        new Paragraph({
+                            text: char.description || "미입력",
+                            spacing: { after: 50 }
+                        })
+                    );
+
+                    if (char.hasAntiForce && char.antiForce && char.antiForce.length > 0) {
+                        children.push(
+                            new Paragraph({
+                                children: [
+                                    new TextRun({ text: "안티 포스: ", bold: true }),
+                                    new TextRun({ text: char.antiForce.join(', ') })
+                                ],
+                                spacing: { after: 50 }
+                            })
+                        );
+                        if (char.antiForceOther) {
+                            children.push(
+                                new Paragraph({
+                                    children: [
+                                        new TextRun({ text: "기타 내용: ", bold: true }),
+                                        new TextRun({ text: char.antiForceOther })
+                                    ],
+                                    spacing: { after: 50 }
+                                })
+                            );
+                        }
+                    }
+                });
+
+                children.push(
+                    new Paragraph({
+                        text: "",
+                        spacing: { after: 300 }
+                    })
+                );
+            }
+
+            // 4단계 (현재 단계가 4 이상일 때)
+            if (currentStep >= 4) {
+                children.push(
+                    new Paragraph({
+                        text: "4단계: 5막 구조",
+                        heading: HeadingLevel.HEADING_3,
+                        spacing: { before: 200, after: 200 }
+                    }),
+                    new Paragraph({
+                        children: [
+                            new TextRun({ text: "① 발단 (Setup)", bold: true })
+                        ],
+                        spacing: { after: 50 }
+                    }),
+                    new Paragraph({
+                        text: workflowData.step4.act1 || "미입력",
+                        spacing: { after: 150 }
+                    }),
+                    new Paragraph({
+                        children: [
+                            new TextRun({ text: "② 전개 (Development)", bold: true })
+                        ],
+                        spacing: { after: 50 }
+                    }),
+                    new Paragraph({
+                        text: workflowData.step4.act2 || "미입력",
+                        spacing: { after: 150 }
+                    }),
+                    new Paragraph({
+                        children: [
+                            new TextRun({ text: "③ 위기 (Crisis)", bold: true })
+                        ],
+                        spacing: { after: 50 }
+                    }),
+                    new Paragraph({
+                        text: workflowData.step4.act3 || "미입력",
+                        spacing: { after: 150 }
+                    }),
+                    new Paragraph({
+                        children: [
+                            new TextRun({ text: "④ 절정 (Climax)", bold: true })
+                        ],
+                        spacing: { after: 50 }
+                    }),
+                    new Paragraph({
+                        text: workflowData.step4.act4 || "미입력",
+                        spacing: { after: 150 }
+                    }),
+                    new Paragraph({
+                        children: [
+                            new TextRun({ text: "⑤ 결말 (Resolution)", bold: true })
+                        ],
+                        spacing: { after: 50 }
+                    }),
+                    new Paragraph({
+                        text: workflowData.step4.act5 || "미입력",
+                        spacing: { after: 150 }
+                    })
+                );
+            }
+
+            const doc = new Document({
+                sections: [{
+                    properties: {},
+                    children: children
+                }]
+            });
+
+            const blob = await Packer.toBlob(doc);
+            const title = workflowData.step2.title || '영상기획안';
+            saveAs(blob, `${title}_Step${currentStep}.docx`);
+        }
+
+        // 초기화
+        loadData();
+        setupSelectionButtons();
+        setupSidebarNavigation();
+
+        // Step 2 입력 필드에 이벤트 리스너 추가
+        document.getElementById('title')?.addEventListener('input', saveData);
+        document.getElementById('plot')?.addEventListener('input', () => {
+            updateCharCount('plot', 'plotCount', 5000);
+        });
+        document.getElementById('worldDescription')?.addEventListener('input', () => {
+            updateCharCount('worldDescription', 'worldCount', 5000);
+        });
+
+        // Step 4 입력 필드에 이벤트 리스너 추가
+        for (let i = 1; i <= 5; i++) {
+            document.getElementById(`act${i}`)?.addEventListener('input', () => {
+                updateCharCount(`act${i}`, `act${i}Count`, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 4 — 기획안 총정리</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #FFFFFF;
+            color: #000000;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 300px;
+            background-color: #f8f8f8;
+            border-right: 2px solid #e0e0e0;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 2px solid #A56744;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h1 {
+            font-size: 20px;
+            font-weight: bold;
+            color: #A56744;
+        }
+
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px 60px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 60px;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #A56744 0%, #8d5739 100%);
+            border-radius: 16px;
+            color: white;
+        }
+
+        .hero-title {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .hero-subtitle {
+            font-size: 18px;
+            opacity: 0.95;
+        }
+
+        .content-header {
+            margin-bottom: 40px;
+        }
+
+        .content-header h2 {
+            font-size: 28px;
+            color: #A56744;
+            margin-bottom: 10px;
+        }
+
+        .content-header p {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* 아코디언 */
+        .accordion {
+            margin-bottom: 20px;
+        }
+
+        .accordion-item {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            background-color: #fff;
+        }
+
+        .accordion-header {
+            background-color: #f5f5f5;
+            padding: 20px 25px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .accordion-header:hover {
+            background-color: #ebebeb;
+        }
+
+        .accordion-header.active {
+            background-color: #A56744;
+            color: white;
+        }
+
+        .accordion-title {
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .accordion-icon {
+            font-size: 24px;
+        }
+
+        .accordion-arrow {
+            font-size: 20px;
+            transition: transform 0.3s;
+        }
+
+        .accordion-header.active .accordion-arrow {
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            display: none;
+            padding: 30px 25px;
+            background-color: #fafafa;
+        }
+
+        .accordion-content.active {
+            display: block;
+        }
+
+        .section-description {
+            background-color: #fff5e6;
+            border-left: 4px solid #A56744;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            border-radius: 6px;
+        }
+
+        .section-description h4 {
+            color: #A56744;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .section-description p {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .structure-tag {
+            display: inline-block;
+            background-color: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-right: 8px;
+            margin-top: 8px;
+        }
+
+        .example-box {
+            background-color: #f0f0f0;
+            border-left: 4px solid #4CAF50;
+            padding: 15px 20px;
+            margin-top: 15px;
+            border-radius: 6px;
+        }
+
+        .example-box h5 {
+            color: #4CAF50;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .example-box p {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        /* 생성된 콘텐츠 */
+        .generated-content {
+            background-color: #ffffff;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .generated-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #4CAF50;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .generated-text {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #333;
+        }
+
+        .editable-text {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: inherit;
+            line-height: 1.8;
+            resize: vertical;
+            min-height: 150px;
+        }
+
+        .editable-text:focus {
+            outline: none;
+            border-color: #A56744;
+        }
+
+        .char-counter {
+            text-align: right;
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        /* 버튼 */
+        .btn {
+            padding: 12px 30px;
+            border: 2px solid #A56744;
+            background-color: #A56744;
+            color: #000000;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn:hover:not(:disabled) {
+            background-color: #8d5739;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background-color: #FFFFFF;
+            color: #000000;
+            border: 2px solid #A56744;
+        }
+
+        .btn-secondary:hover {
+            background-color: #f5f5f5;
+        }
+
+        .btn-generate {
+            background-color: #4CAF50;
+            color: #FFFFFF;
+        }
+
+        .btn-generate:hover {
+            background-color: #45a049;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .save-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 20px;
+            font-size: 13px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+
+        .save-status.show {
+            opacity: 1;
+        }
+
+        .note {
+            padding: 15px;
+            background-color: #fff5e6;
+            border-left: 4px solid #A56744;
+            margin-bottom: 30px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* 테이블 */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            text-align: left;
+        }
+
+        .comparison-table th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+            color: #A56744;
+        }
+
+        .comparison-table td {
+            background-color: #fff;
+        }
+
+        /* 로딩 오버레이 */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #A56744;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .subsection {
+            margin-bottom: 25px;
+        }
+
+        .subsection h4 {
+            color: #A56744;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>Module 4 — 기획안</h1>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <div class="hero-title">HOOK으로 잡고, Logline으로 설득합니다</div>
+            <div class="hero-subtitle">당신의 스토리를 완성된 기획안으로</div>
+        </div>
+
+        <div class="content-header">
+            <h2>9단계: 기획안 총정리</h2>
+            <p>Module 1~3의 모든 내용을 분석하여 투자자를 설득할 수 있는 기획안을 완성합니다.</p>
+        </div>
+
+        <div class="note">
+            ※ 1~5번 항목은 Gemini PRO가 이전 단계의 내용을 분석하여 자동 생성합니다.
+            생성된 내용은 자유롭게 수정 가능합니다. 6번 감독의 의도는 직접 작성해주세요.
+        </div>
+
+        <div class="button-group">
+            <button class="btn btn-generate" onclick="autoGenerateAll()">
+                🤖 AI로 1~5번 항목 자동 생성
+            </button>
+        </div>
+
+        <!-- 아코디언 섹션 -->
+        <div class="accordion" style="margin-top: 40px;">
+            <!-- 1. Hook -->
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(0)">
+                    <div class="accordion-title">
+                        <span class="accordion-icon">🎣</span>
+                        <span>1. Hook (1줄)</span>
+                    </div>
+                    <span class="accordion-arrow">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="section-description">
+                        <h4>Hook이란?</h4>
+                        <p>감정과 관심을 즉시 붙잡는 한 줄 펀치라인입니다.</p>
+                        <div style="margin-top: 10px;">
+                            <span class="structure-tag">감정</span>
+                            <span class="structure-tag">컨셉</span>
+                            <span class="structure-tag">차별점</span>
+                        </div>
+                    </div>
+
+                    <div class="example-box">
+                        <h5>📌 부산행 예시</h5>
+                        <p>"좀비가 퍼진 한국, 열차 안에서 생존 전쟁이 시작된다"</p>
+                    </div>
+
+                    <div class="generated-content" style="margin-top: 20px;">
+                        <div class="generated-label">
+                            <span>🤖</span>
+                            <span>AI 생성 Hook</span>
+                        </div>
+                        <textarea class="editable-text" id="hook" placeholder="AI가 자동 생성할 Hook이 여기에 표시됩니다..."
+                            oninput="saveData(); updateCharCount('hook', 'hookCount', 200)" maxlength="200"></textarea>
+                        <div class="char-counter" id="hookCount">0 / 200</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Logline -->
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(1)">
+                    <div class="accordion-title">
+                        <span class="accordion-icon">📝</span>
+                        <span>2. Logline (3줄)</span>
+                    </div>
+                    <span class="accordion-arrow">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="section-description">
+                        <h4>Logline이란?</h4>
+                        <p>영화의 핵심 줄거리와 구조를 짧게 설명합니다.</p>
+                        <div style="margin-top: 10px;">
+                            <span class="structure-tag">주인공</span>
+                            <span class="structure-tag">목표</span>
+                            <span class="structure-tag">갈등</span>
+                            <span class="structure-tag">Stakes(결과)</span>
+                        </div>
+                    </div>
+
+                    <div class="example-box">
+                        <h5>📌 부산행 예시</h5>
+                        <p>"이혼 위기의 아빠와 딸은 서울발 부산행 KTX에 탑승한다. 그러나 좀비 바이러스가 퍼지며 열차는 지옥이 되고, 그들은 끝까지 살아남아야 한다."</p>
+                    </div>
+
+                    <div class="generated-content" style="margin-top: 20px;">
+                        <div class="generated-label">
+                            <span>🤖</span>
+                            <span>AI 생성 Logline</span>
+                        </div>
+                        <textarea class="editable-text" id="logline" placeholder="AI가 자동 생성할 Logline이 여기에 표시됩니다..."
+                            oninput="saveData(); updateCharCount('logline', 'loglineCount', 500)" maxlength="500"></textarea>
+                        <div class="char-counter" id="loglineCount">0 / 500</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Synopsis -->
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(2)">
+                    <div class="accordion-title">
+                        <span class="accordion-icon">📖</span>
+                        <span>3. Synopsis</span>
+                    </div>
+                    <span class="accordion-arrow">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="section-description">
+                        <h4>Synopsis란?</h4>
+                        <p>스토리 전체의 흐름을 시간 순서대로 핵심 사건만 압축한 요약본입니다.</p>
+                        <div style="margin-top: 10px;">
+                            <span class="structure-tag">시작</span>
+                            <span class="structure-tag">전개</span>
+                            <span class="structure-tag">클라이맥스</span>
+                            <span class="structure-tag">결말</span>
+                        </div>
+                        <p style="margin-top: 10px; font-size: 13px;">감정 포인트, 관계 변화, 주인공 아치가 한눈에 보이도록 1500자 이내로 작성합니다.</p>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>[주인공 소개]</h4>
+                        <textarea class="editable-text" id="synopsis-intro"
+                            placeholder="주인공의 초기 상태와 일상을 소개합니다..."
+                            oninput="saveData()" style="min-height: 100px;"></textarea>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>[목표]</h4>
+                        <textarea class="editable-text" id="synopsis-goal"
+                            placeholder="주인공이 이루고자 하는 목표를 설명합니다..."
+                            oninput="saveData()" style="min-height: 100px;"></textarea>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>[갈등 & 장애물]</h4>
+                        <textarea class="editable-text" id="synopsis-conflict"
+                            placeholder="주인공이 겪는 갈등과 극복해야 할 장애물을 설명합니다..."
+                            oninput="saveData()" style="min-height: 100px;"></textarea>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>[결말 힌트]</h4>
+                        <textarea class="editable-text" id="synopsis-ending"
+                            placeholder="이야기의 결말과 주인공의 변화를 설명합니다..."
+                            oninput="saveData()" style="min-height: 100px;"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. 캐릭터 아치 -->
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(3)">
+                    <div class="accordion-title">
+                        <span class="accordion-icon">📊</span>
+                        <span>4. 캐릭터 아치 (변화 곡선)</span>
+                    </div>
+                    <span class="accordion-arrow">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="section-description">
+                        <h4>캐릭터 아치란?</h4>
+                        <p>캐릭터가 변화하는 모습을 간단히 그린 요약본입니다.</p>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>[초기 상태]</h4>
+                        <textarea class="editable-text" id="arch-initial"
+                            placeholder="캐릭터의 초기 상태, 신념, 결함을 설명합니다..."
+                            oninput="saveData()" style="min-height: 100px;"></textarea>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>[도전 혹은 갈등]</h4>
+                        <textarea class="editable-text" id="arch-challenge"
+                            placeholder="캐릭터가 직면하는 도전과 갈등을 설명합니다..."
+                            oninput="saveData()" style="min-height: 100px;"></textarea>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>[변환점]</h4>
+                        <textarea class="editable-text" id="arch-turning"
+                            placeholder="캐릭터가 변화하게 되는 결정적 순간을 설명합니다..."
+                            oninput="saveData()" style="min-height: 100px;"></textarea>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>[최종 상태]</h4>
+                        <textarea class="editable-text" id="arch-final"
+                            placeholder="변화 후 캐릭터의 최종 상태를 설명합니다..."
+                            oninput="saveData()" style="min-height: 100px;"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. 시장성/타겟/경쟁작 비교 -->
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(4)">
+                    <div class="accordion-title">
+                        <span class="accordion-icon">💰</span>
+                        <span>5. 시장성 / 타겟 / 경쟁작 비교</span>
+                    </div>
+                    <span class="accordion-arrow">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="section-description">
+                        <h4>시장 분석</h4>
+                        <p>투자자를 설득하기 위한 시장성, 타겟층, 경쟁작 분석입니다.</p>
+                    </div>
+
+                    <div class="example-box">
+                        <h5>📌 부산행 예시</h5>
+                        <table class="comparison-table">
+                            <tr>
+                                <th>항목</th>
+                                <th>내용</th>
+                            </tr>
+                            <tr>
+                                <td><strong>시장성</strong></td>
+                                <td>한국형 좀비 장르는 희소하고, 감정 드라마 중심 생존물은 아시아 시장에서 수요가 높음</td>
+                            </tr>
+                            <tr>
+                                <td><strong>타겟</strong></td>
+                                <td>10대 후반 ~ 40대 남녀 / 넷플릭스, 극장 스릴러 선호층</td>
+                            </tr>
+                            <tr>
+                                <td><strong>경쟁작 비교</strong></td>
+                                <td>&lt;부산행&gt;, &lt;킹덤&gt;, &lt;28 Days Later&gt;</td>
+                            </tr>
+                            <tr>
+                                <td><strong>차별점</strong></td>
+                                <td>KTX라는 제한된 공간 / 아버지-딸 감정선 강조 / 이동형 생존 구조</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="subsection" style="margin-top: 25px;">
+                        <h4>[시장성] - 왜 돈이 되는가</h4>
+                        <textarea class="editable-text" id="market-potential"
+                            placeholder="장르의 시장성과 수익 가능성을 설명합니다..."
+                            oninput="saveData()" style="min-height: 100px;"></textarea>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>[타겟 연령/성별층] - 누가 돈을 쓸 것인가</h4>
+                        <textarea class="editable-text" id="market-target"
+                            placeholder="주요 타겟 관객층을 설명합니다..."
+                            oninput="saveData()" style="min-height: 100px;"></textarea>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>[경쟁작 비교] - 왜 성공할 가능성이 있는가</h4>
+                        <textarea class="editable-text" id="market-competition"
+                            placeholder="유사 작품들과의 비교 및 차별점을 설명합니다..."
+                            oninput="saveData()" style="min-height: 100px;"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. 감독의 의도 -->
+            <div class="accordion-item">
+                <div class="accordion-header" onclick="toggleAccordion(5)">
+                    <div class="accordion-title">
+                        <span class="accordion-icon">🎬</span>
+                        <span>6. 감독의 의도 (Director's Statement)</span>
+                    </div>
+                    <span class="accordion-arrow">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="section-description">
+                        <h4>감독의 의도란?</h4>
+                        <p>작품을 통해 전달하고자 하는 메시지, 연출 방향, 예술적 비전을 설명합니다.</p>
+                        <p style="margin-top: 8px; color: #d32f2f; font-weight: bold;">※ 이 섹션은 직접 작성해주세요 (5000자 이내)</p>
+                    </div>
+
+                    <div class="subsection">
+                        <textarea class="editable-text" id="director-statement"
+                            placeholder="작품을 만들게 된 동기, 전달하고자 하는 메시지, 연출 스타일, 관객에게 전달하고 싶은 감정 등을 자유롭게 작성하세요..."
+                            oninput="saveData(); updateCharCount('director-statement', 'directorCount', 5000)"
+                            maxlength="5000" style="min-height: 300px;"></textarea>
+                        <div class="char-counter" id="directorCount">0 / 5000</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 액션 버튼 -->
+        <div class="action-buttons">
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="alert('Module 3의 8단계로 이동')">이전으로</button>
+            </div>
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="downloadFinalWord()">
+                    📥 최종 기획안 다운로드 (전체 통합)
+                </button>
+                <button class="btn" onclick="alert('기획안 제작이 완료되었습니다!')">완료</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 로딩 오버레이 -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h3 style="color: #A56744; margin-bottom: 10px;">AI 분석 중...</h3>
+            <p style="color: #666;">Gemini PRO가 이전 단계의 내용을 분석하여 기획안을 작성하고 있습니다.</p>
+        </div>
+    </div>
+
+    <!-- 저장 상태 -->
+    <div class="save-status" id="saveStatus">자동 저장됨</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/docx@7.8.2/build/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+
+    <script>
+        let workflowData = {
+            hook: '',
+            logline: '',
+            synopsis: {
+                intro: '',
+                goal: '',
+                conflict: '',
+                ending: ''
+            },
+            characterArch: {
+                initial: '',
+                challenge: '',
+                turning: '',
+                final: ''
+            },
+            market: {
+                potential: '',
+                target: '',
+                competition: ''
+            },
+            directorStatement: ''
+        };
+
+        // 초기화
+        function init() {
+            loadData();
+            restoreAllData();
+        }
+
+        // 아코디언 토글
+        function toggleAccordion(index) {
+            const items = document.querySelectorAll('.accordion-item');
+            const header = items[index].querySelector('.accordion-header');
+            const content = items[index].querySelector('.accordion-content');
+
+            header.classList.toggle('active');
+            content.classList.toggle('active');
+        }
+
+        // 글자 수 카운터
+        function updateCharCount(fieldId, counterId, maxLength) {
+            const field = document.getElementById(fieldId);
+            const counter = document.getElementById(counterId);
+            if (field && counter) {
+                counter.textContent = `${field.value.length} / ${maxLength}`;
+            }
+            saveData();
+        }
+
+        // AI 자동 생성
+        async function autoGenerateAll() {
+            if (!confirm('Gemini PRO가 Module 1~3의 내용을 분석하여 Hook, Logline, Synopsis, 캐릭터 아치, 시장성 분석을 자동 생성합니다. 계속하시겠습니까?')) {
+                return;
+            }
+
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.classList.add('active');
+
+            // 시뮬레이션: 3초 후 생성 완료
+            setTimeout(() => {
+                // Hook 생성 (예시)
+                document.getElementById('hook').value = '작은 별에서 온 왕자가 지구에서 발견하는 진짜 사랑의 의미';
+                updateCharCount('hook', 'hookCount', 200);
+
+                // Logline 생성 (예시)
+                document.getElementById('logline').value = '어린 왕자는 자신의 별에 있는 장미를 떠나 여러 별을 여행한다. 지구에 도착한 그는 여우를 만나 "길들임"의 의미를 배우고, 진정한 사랑은 책임감에서 비롯된다는 것을 깨닫는다. 그리고 자신의 별로 돌아가기로 결심한다.';
+                updateCharCount('logline', 'loglineCount', 500);
+
+                // Synopsis 생성 (예시)
+                document.getElementById('synopsis-intro').value = '어린 왕자는 작은 소행성 B-612에서 홀로 살아간다. 그의 별에는 특별한 장미 한 송이가 있다. 하지만 장미의 허영과 까다로움에 지친 어린 왕자는 여행을 떠나기로 결심한다.';
+                document.getElementById('synopsis-goal').value = '어린 왕자는 다른 별들을 방문하며 어른들의 세계를 이해하고, 진정한 사랑과 우정의 의미를 찾고자 한다.';
+                document.getElementById('synopsis-conflict').value = '여행 중 만난 권력에 집착하는 왕, 허영심에 가득 찬 사람, 술꾼, 사업가 등은 모두 본질을 잃고 살아간다. 어린 왕자는 그들의 공허함을 목격하며 혼란스러워한다.';
+                document.getElementById('synopsis-ending').value = '지구에서 만난 여우는 어린 왕자에게 "길들인다는 것"의 의미를 가르쳐준다. 어린 왕자는 자신의 장미가 특별한 이유를 깨닫고, 책임감을 갖고 돌아가기로 결심한다.';
+
+                // 캐릭터 아치 생성 (예시)
+                document.getElementById('arch-initial').value = '순수하지만 미숙한 어린 왕자. 장미의 사랑을 이해하지 못하고 도망친다.';
+                document.getElementById('arch-challenge').value = '여러 별을 여행하며 어른들의 이상한 세계를 경험한다. 본질을 잃고 살아가는 사람들을 보며 혼란스러워한다.';
+                document.getElementById('arch-turning').value = '여우를 만나 "길들임"의 의미를 배운다. "네가 네 장미에게 쓴 시간이 네 장미를 그토록 소중하게 만든 거야."';
+                document.getElementById('arch-final').value = '성숙해진 어린 왕자. 사랑은 책임감이며, 자신의 장미를 돌봐야 한다는 것을 깨닫는다.';
+
+                // 시장성 분석 생성 (예시)
+                document.getElementById('market-potential').value = '가족 관객을 대상으로 한 감성 애니메이션 시장은 지속적으로 성장 중. 철학적 메시지와 보편적 주제로 전 연령대에 소구 가능.';
+                document.getElementById('market-target').value = '초등학생~중학생 자녀를 둔 가족 단위 관객 / 20~30대 감성 애니메이션 선호층 / 해외 시장: 원작의 글로벌 인지도 활용 가능';
+                document.getElementById('market-competition').value = '경쟁작: <리틀 프린스>, <센과 치히로의 행방불명>, <업>\n차별점: 철학적 메시지와 시각적 아름다움의 조화 / 원작의 글로벌 팬층 확보 / 어른과 아이 모두에게 다른 감동 제공';
+
+                overlay.classList.remove('active');
+                alert('AI 자동 생성이 완료되었습니다. 내용을 확인하고 자유롭게 수정하실 수 있습니다.');
+                saveData();
+            }, 3000);
+        }
+
+        // 데이터 저장
+        function saveData() {
+            workflowData.hook = document.getElementById('hook')?.value || '';
+            workflowData.logline = document.getElementById('logline')?.value || '';
+
+            workflowData.synopsis.intro = document.getElementById('synopsis-intro')?.value || '';
+            workflowData.synopsis.goal = document.getElementById('synopsis-goal')?.value || '';
+            workflowData.synopsis.conflict = document.getElementById('synopsis-conflict')?.value || '';
+            workflowData.synopsis.ending = document.getElementById('synopsis-ending')?.value || '';
+
+            workflowData.characterArch.initial = document.getElementById('arch-initial')?.value || '';
+            workflowData.characterArch.challenge = document.getElementById('arch-challenge')?.value || '';
+            workflowData.characterArch.turning = document.getElementById('arch-turning')?.value || '';
+            workflowData.characterArch.final = document.getElementById('arch-final')?.value || '';
+
+            workflowData.market.potential = document.getElementById('market-potential')?.value || '';
+            workflowData.market.target = document.getElementById('market-target')?.value || '';
+            workflowData.market.competition = document.getElementById('market-competition')?.value || '';
+
+            workflowData.directorStatement = document.getElementById('director-statement')?.value || '';
+
+            localStorage.setItem('videoWorkflowData_module4', JSON.stringify(workflowData));
+            showSaveStatus();
+        }
+
+        // 데이터 로드
+        function loadData() {
+            const saved = localStorage.getItem('videoWorkflowData_module4');
+            if (saved) {
+                workflowData = JSON.parse(saved);
+            }
+        }
+
+        // 데이터 복원
+        function restoreAllData() {
+            if (workflowData.hook) {
+                document.getElementById('hook').value = workflowData.hook;
+                updateCharCount('hook', 'hookCount', 200);
+            }
+            if (workflowData.logline) {
+                document.getElementById('logline').value = workflowData.logline;
+                updateCharCount('logline', 'loglineCount', 500);
+            }
+            if (workflowData.synopsis.intro) {
+                document.getElementById('synopsis-intro').value = workflowData.synopsis.intro;
+            }
+            if (workflowData.synopsis.goal) {
+                document.getElementById('synopsis-goal').value = workflowData.synopsis.goal;
+            }
+            if (workflowData.synopsis.conflict) {
+                document.getElementById('synopsis-conflict').value = workflowData.synopsis.conflict;
+            }
+            if (workflowData.synopsis.ending) {
+                document.getElementById('synopsis-ending').value = workflowData.synopsis.ending;
+            }
+            if (workflowData.characterArch.initial) {
+                document.getElementById('arch-initial').value = workflowData.characterArch.initial;
+            }
+            if (workflowData.characterArch.challenge) {
+                document.getElementById('arch-challenge').value = workflowData.characterArch.challenge;
+            }
+            if (workflowData.characterArch.turning) {
+                document.getElementById('arch-turning').value = workflowData.characterArch.turning;
+            }
+            if (workflowData.characterArch.final) {
+                document.getElementById('arch-final').value = workflowData.characterArch.final;
+            }
+            if (workflowData.market.potential) {
+                document.getElementById('market-potential').value = workflowData.market.potential;
+            }
+            if (workflowData.market.target) {
+                document.getElementById('market-target').value = workflowData.market.target;
+            }
+            if (workflowData.market.competition) {
+                document.getElementById('market-competition').value = workflowData.market.competition;
+            }
+            if (workflowData.directorStatement) {
+                document.getElementById('director-statement').value = workflowData.directorStatement;
+                updateCharCount('director-statement', 'directorCount', 5000);
+            }
+        }
+
+        // 최종 기획안 다운로드
+        async function downloadFinalWord() {
+            alert('Module 1~4의 모든 내용을 통합하여 최종 기획안 워드 파일을 생성합니다.');
+            // 실제 구현 시 docx 라이브러리로 통합 문서 생성
+        }
+
+        function showSaveStatus() {
+            const status = document.getElementById('saveStatus');
+            status.classList.add('show');
+            setTimeout(() => status.classList.remove('show'), 2000);
+        }
+
+        // 초기화
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>영상 기획안 제작 워크플로우 - PRO</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:#FFF;color:#000;display:flex;height:100vh;overflow:hidden}
+.sidebar{width:280px;background:#f8f8f8;border-right:2px solid #e0e0e0;overflow-y:auto;padding:20px 0}
+.sidebar-header{padding:0 20px 20px;border-bottom:2px solid #A56744;margin-bottom:20px}
+.sidebar-header h1{font-size:18px;font-weight:bold;color:#A56744}
+.module-title{padding:10px 20px;background:#A56744;color:#FFF;font-weight:bold;font-size:13px}
+.step-item{padding:10px 20px 10px 35px;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:8px;border-left:3px solid transparent}
+.step-item:hover{background:#e8e8e8}
+.step-item.active{background:#fff;border-left-color:#A56744;font-weight:bold}
+.main-content{flex:1;overflow-y:auto;padding:30px 50px}
+.content-header{margin-bottom:30px;border-bottom:3px solid #A56744;padding-bottom:15px}
+.content-header h2{font-size:24px;color:#A56744;margin-bottom:8px}
+.content-header p{font-size:13px;color:#666}
+.progress-bar{width:100%;height:5px;background:#e0e0e0;border-radius:3px;margin-bottom:20px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#A56744,#8d5739);transition:.3s}
+.progress-text{text-align:center;font-size:12px;color:#666;margin-top:5px}
+.step-container{display:none}
+.step-container.active{display:block}
+.form-section{margin-bottom:30px}
+.form-section h3{font-size:16px;margin-bottom:15px;color:#A56744;font-weight:bold}
+.selection-group{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:20px}
+.selection-button{padding:10px 20px;border:2px solid #A56744;background:#FFF;color:#000;border-radius:20px;cursor:pointer;transition:.3s;font-size:13px}
+.selection-button:hover{background:#f5f5f5}
+.selection-button.selected{background:#A56744;color:#FFF}
+.input-field{width:100%;padding:10px;border:2px solid #e0e0e0;border-radius:6px;font-size:13px;font-family:inherit}
+.input-field:focus{outline:none;border-color:#A56744}
+textarea.input-field{min-height:120px;resize:vertical}
+.input-with-button{display:flex;gap:10px}
+.random-btn{padding:10px 18px;border:2px solid #A56744;background:#FFF;color:#000;border-radius:20px;cursor:pointer;font-size:14px;transition:.3s}
+.random-btn:hover{background:#A56744;color:#FFF}
+.btn{padding:10px 25px;border:none;background:#A56744;color:#000;border-radius:20px;cursor:pointer;font-size:14px;font-weight:bold;transition:.3s}
+.btn:hover:not(:disabled){background:#8d5739}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-secondary{background:#FFF;color:#000;border:2px solid #A56744}
+.btn-secondary:hover:not(:disabled){background:#f5f5f5}
+.btn-generate{background:#4CAF50;color:#FFF}
+.btn-generate:hover{background:#45a049}
+.button-group{display:flex;gap:12px;flex-wrap:wrap}
+.action-buttons{display:flex;justify-content:space-between;margin-top:40px;padding-top:20px;border-top:2px solid #e0e0e0}
+.character-card,.act-section,.bg-card,.shot-card{border:2px solid #e0e0e0;border-radius:10px;padding:20px;margin-bottom:20px;background:#fafafa}
+.character-card-header,.bg-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid #A56744}
+.card-title{font-size:16px;font-weight:bold;color:#A56744}
+.remove-btn{padding:6px 14px;border:2px solid #d32f2f;background:#FFF;color:#d32f2f;border-radius:15px;cursor:pointer;font-size:12px;transition:.3s}
+.remove-btn:hover{background:#d32f2f;color:#FFF}
+.add-btn{width:100%;padding:12px;border:2px dashed #A56744;background:transparent;color:#A56744;border-radius:10px;cursor:pointer;font-weight:bold;margin-top:15px}
+.add-btn:hover{background:#f5f5f5}
+.toggle-group{display:flex;gap:10px;margin-bottom:15px}
+.toggle-btn{padding:8px 16px;border:2px solid #A56744;background:#FFF;color:#000;border-radius:15px;cursor:pointer;transition:.3s}
+.toggle-btn.active{background:#A56744;color:#FFF}
+.checkbox-group{display:flex;flex-direction:column;gap:8px;margin-left:15px}
+.checkbox-item{display:flex;align-items:center;gap:8px}
+.anti-force-container{margin-top:15px;padding:15px;background:#fff;border-radius:8px;border:2px solid #e0e0e0}
+.upload-area{border:3px dashed #A56744;border-radius:10px;padding:30px;text-align:center;background:#fafafa;cursor:pointer;transition:.3s;margin-bottom:15px}
+.upload-area:hover{background:#f0f0f0}
+.upload-area.dragover{background:#fff5e6}
+.upload-area input[type="file"]{display:none}
+.image-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:15px;margin-top:20px}
+.image-card{border:2px solid #e0e0e0;border-radius:10px;overflow:hidden;background:#fff;transition:.3s}
+.image-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.image-preview{width:100%;height:180px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative}
+.image-preview img{max-width:100%;max-height:100%;object-fit:contain}
+.image-label{padding:10px;background:#fafafa;font-size:12px;font-weight:bold;text-align:center;border-top:2px solid #e0e0e0}
+.image-actions{padding:8px;display:flex;gap:6px;justify-content:center}
+.icon-btn{padding:5px 10px;border:1px solid #A56744;background:#fff;color:#A56744;border-radius:5px;cursor:pointer;font-size:11px;transition:.3s}
+.icon-btn:hover{background:#A56744;color:#fff}
+.generating{position:relative}
+.generating::after{content:"생성 중...";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.7);color:#fff;padding:10px 20px;border-radius:8px;font-size:13px}
+.accordion-item{border:2px solid #e0e0e0;border-radius:10px;overflow:hidden;margin-bottom:15px;background:#fff}
+.accordion-header{background:#f5f5f5;padding:15px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:.3s}
+.accordion-header:hover{background:#ebebeb}
+.accordion-header.active{background:#A56744;color:#fff}
+.accordion-title{font-size:15px;font-weight:bold;display:flex;align-items:center;gap:12px}
+.accordion-arrow{font-size:18px;transition:transform .3s}
+.accordion-header.active .accordion-arrow{transform:rotate(180deg)}
+.accordion-content{display:none;padding:20px;background:#fafafa}
+.accordion-content.active{display:block}
+.scene-accordion{border:2px solid #e0e0e0;border-radius:10px;margin-bottom:15px;overflow:hidden}
+.scene-header{background:#f5f5f5;padding:12px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:.3s}
+.scene-header:hover{background:#ebebeb}
+.scene-header.active{background:#A56744;color:#fff}
+.scene-content{display:none;padding:15px;background:#fafafa}
+.scene-content.active{display:block}
+.tone-section{background:#fff5e6;border:2px solid #A56744;border-radius:10px;padding:20px;margin-bottom:25px}
+.tone-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+.switch{position:relative;width:50px;height:25px;background:#ccc;border-radius:15px;cursor:pointer;transition:.3s}
+.switch.active{background:#4CAF50}
+.switch-slider{position:absolute;top:3px;left:3px;width:19px;height:19px;background:#fff;border-radius:50%;transition:.3s}
+.switch.active .switch-slider{transform:translateX(25px)}
+.prompt-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:15px}
+.prompt-section{display:flex;flex-direction:column}
+.prompt-label{font-size:12px;font-weight:bold;margin-bottom:5px;color:#A56744}
+.prompt-input{padding:8px;border:2px solid #e0e0e0;border-radius:5px;font-size:12px;font-family:inherit;resize:vertical;min-height:50px}
+.prompt-input:focus{outline:none;border-color:#A56744}
+.key-image-preview{width:100%;height:350px;border:2px solid #e0e0e0;border-radius:8px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;margin-bottom:12px;cursor:pointer;position:relative;overflow:hidden}
+.key-image-preview img{max-width:100%;max-height:100%;object-fit:contain}
+.auto-prompt{background:#f0f0f0;padding:12px;border-radius:6px;margin-bottom:12px;font-size:11px;color:#333;border-left:4px solid #4CAF50}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.9);z-index:2000;justify-content:center;align-items:center}
+.modal.active{display:flex}
+.modal-content{max-width:95%;max-height:95%;position:relative}
+.modal-content img{max-width:100%;max-height:90vh;object-fit:contain}
+.modal-close{position:absolute;top:-40px;right:0;font-size:36px;color:#fff;cursor:pointer}
+.save-status{position:fixed;top:20px;right:20px;padding:10px 20px;background:#4CAF50;color:white;border-radius:20px;font-size:12px;opacity:0;transition:.3s;z-index:1000}
+.save-status.show{opacity:1}
+.note{padding:12px;background:#fff5e6;border-left:4px solid #A56744;margin-bottom:15px;font-size:12px;color:#666}
+.hidden{display:none}
+.char-counter{text-align:right;font-size:11px;color:#999;margin-top:5px}
+.loading-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;z-index:9999}
+.loading-overlay.active{display:flex}
+.loading-content{background:white;padding:40px;border-radius:16px;text-align:center}
+.spinner{border:4px solid #f3f3f3;border-top:4px solid #A56744;border-radius:50%;width:50px;height:50px;animation:spin 1s linear infinite;margin:0 auto 20px}
+@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.hero-section{text-align:center;margin-bottom:50px;padding:35px 20px;background:linear-gradient(135deg,#A56744,#8d5739);border-radius:14px;color:white}
+.hero-title{font-size:32px;font-weight:bold;margin-bottom:8px;text-shadow:2px 2px 4px rgba(0,0,0,.2)}
+.hero-subtitle{font-size:16px;opacity:.95}
+.input-row{display:flex;gap:12px;margin-bottom:15px}
+.input-row>div{flex:1}
+label{display:block;margin-bottom:6px;font-weight:500;font-size:12px}
+</style>
+</head>
+<body>
+<!-- 사이드바 -->
+<div class="sidebar">
+<div class="sidebar-header">
+<h1>영상 기획안 제작 PRO</h1>
+<div style="margin-top:15px;padding:10px;background:#fff5e6;border-radius:8px;border:1px solid #A56744">
+<label style="font-size:11px;font-weight:bold;color:#A56744;display:block;margin-bottom:5px">🤖 Gemini API Key</label>
+<input type="text" id="apiKey" class="input-field" placeholder="AIza... 로 시작하는 키 입력" style="font-size:11px;padding:6px;margin-bottom:5px" oninput="saveApiKey()">
+<button onclick="testApiKey()" style="width:100%;padding:5px;background:#4CAF50;color:#fff;border:none;border-radius:5px;font-size:10px;cursor:pointer;margin-bottom:5px">✓ API 키 테스트</button>
+<div style="font-size:9px;color:#666;line-height:1.4">
+<a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#A56744;text-decoration:underline">📎 키 발급 받기</a><br>
+* 키는 로컬에만 저장됩니다
+</div>
+</div>
+</div>
+<div class="module-title">Module 1 — 스토리</div>
+<div class="step-item active" data-step="1"><span>🎬</span><span>1. 제작 형식</span></div>
+<div class="step-item" data-step="2"><span>✏️</span><span>2. 줄거리</span></div>
+<div class="step-item" data-step="3"><span>👥</span><span>3. 캐릭터</span></div>
+<div class="step-item" data-step="4"><span>📖</span><span>4. 5막 구조</span></div>
+<div class="module-title">Module 2 — Visual Assets</div>
+<div class="step-item" data-step="5"><span>🎨</span><span>5. 주인공 시트</span></div>
+<div class="step-item" data-step="6"><span>🖼️</span><span>6. 추가 캐릭터</span></div>
+<div class="step-item" data-step="7"><span>🏞️</span><span>7. 배경</span></div>
+<div class="module-title">Module 3 — 큐시트</div>
+<div class="step-item" data-step="8"><span>🔑</span><span>8. KEY 이미지</span></div>
+<div class="module-title">Module 4 — 기획안</div>
+<div class="step-item" data-step="9"><span>📄</span><span>9. 총정리</span></div>
+</div>
+
+<!-- 메인 콘텐츠 -->
+<div class="main-content">
+<div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:11%"></div></div>
+<div class="progress-text" id="progressText">1/9 단계 (11%)</div>
+
+<!-- 1단계 -->
+<div class="step-container active" data-step="1">
+<div class="content-header"><h2>1단계: 제작 형식 선택</h2><p>영상의 기본 정보를 설정합니다</p></div>
+<div class="form-section"><h3>(1) 제작 형태</h3>
+<div class="selection-group" id="productionType">
+<button class="selection-button" data-value="영화">영화</button>
+<button class="selection-button" data-value="2D 애니메이션">2D 애니메이션</button>
+<button class="selection-button" data-value="3D 애니메이션">3D 애니메이션</button>
+</div></div>
+<div class="form-section"><h3>(2) 영상 길이</h3>
+<div class="selection-group" id="videoLength">
+<button class="selection-button" data-value="29초">29초</button>
+<button class="selection-button" data-value="1분">1분</button>
+<button class="selection-button" data-value="1분 30초">1분 30초</button>
+<button class="selection-button" data-value="3분">3분</button>
+<button class="selection-button" data-value="5분">5분</button>
+<button class="selection-button" data-value="8분">8분</button>
+<button class="selection-button" data-value="10분">10분</button>
+<button class="selection-button" data-value="30분">30분</button>
+</div></div>
+<div class="form-section"><h3>(3) 세계관</h3>
+<div class="selection-group" id="worldview">
+<button class="selection-button" data-value="한국">한국</button>
+<button class="selection-button" data-value="중국">중국</button>
+<button class="selection-button" data-value="일본">일본</button>
+<button class="selection-button" data-value="홍콩">홍콩</button>
+<button class="selection-button" data-value="유럽">유럽</button>
+<button class="selection-button" data-value="미국">미국</button>
+<button class="selection-button" data-value="영국">영국</button>
+<button class="selection-button" data-value="판타지">판타지</button>
+<button class="selection-button" data-value="다크판타지">다크판타지</button>
+<button class="selection-button" data-value="로맨스판타지">로맨스판타지</button>
+<button class="selection-button" data-value="아카데미물">아카데미물</button>
+<button class="selection-button" data-value="키즈">키즈</button>
+</div></div>
+<div class="action-buttons">
+<div class="button-group"><button class="btn btn-secondary" disabled>이전</button></div>
+<div class="button-group">
+<button class="btn btn-secondary" onclick="downloadWord()">워드 다운로드</button>
+<button class="btn" onclick="goToStep(2)">다음</button>
+</div></div>
+</div>
+
+<!-- 2단계 -->
+<div class="step-container" data-step="2">
+<div class="content-header"><h2>2단계: 제목 / 줄거리 / 세계관</h2></div>
+<div class="form-section"><h3>(1) 제목</h3>
+<div class="input-with-button">
+<input type="text" class="input-field" id="title" placeholder="작품 제목" oninput="saveData()">
+<button class="random-btn" onclick="generateTitle()">🎲</button>
+</div></div>
+<div class="form-section">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
+<h3>(2) 줄거리</h3>
+<button class="btn btn-generate" onclick="generatePlot()">🤖 AI 생성</button>
+</div>
+<textarea class="input-field" id="plot" placeholder="줄거리 입력..." maxlength="5000" oninput="updateCounter('plot','plotCount',5000)"></textarea>
+<div class="char-counter" id="plotCount">0/5000</div></div>
+<div class="form-section">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
+<h3>(3) 세계관</h3>
+<button class="btn btn-generate" onclick="generateWorld()">🤖 AI 생성</button>
+</div>
+<textarea class="input-field" id="worldDesc" placeholder="세계관 입력..." maxlength="5000" oninput="updateCounter('worldDesc','worldCount',5000)"></textarea>
+<div class="char-counter" id="worldCount">0/5000</div></div>
+<div class="action-buttons">
+<div class="button-group"><button class="btn btn-secondary" onclick="goToStep(1)">이전</button></div>
+<div class="button-group">
+<button class="btn btn-secondary" onclick="downloadWord()">워드 다운로드</button>
+<button class="btn" onclick="goToStep(3)">다음</button>
+</div></div>
+</div>
+
+<!-- 3단계: 캐릭터 -->
+<div class="step-container" data-step="3">
+<div class="content-header"><h2>3단계: 캐릭터 빌드업</h2><p>주요 캐릭터를 설정합니다</p></div>
+<div id="charactersContainer"></div>
+<button class="add-btn" onclick="addCharacter()">+ 캐릭터 추가</button>
+<div class="action-buttons">
+<div class="button-group"><button class="btn btn-secondary" onclick="goToStep(2)">이전</button></div>
+<div class="button-group">
+<button class="btn btn-secondary" onclick="downloadWord()">워드 다운로드</button>
+<button class="btn" onclick="goToStep(4)">다음</button>
+</div></div>
+</div>
+
+<!-- 4단계: 5막 구조 -->
+<div class="step-container" data-step="4">
+<div class="content-header"><h2>4단계: 5막 구조</h2><p>AI가 자동으로 5막 구조를 생성합니다</p></div>
+<button class="btn btn-generate" onclick="generate5Acts()" style="margin-bottom:20px">🎲 자동 생성</button>
+<div class="act-section"><h4>① 발단 (Setup)</h4>
+<textarea class="input-field" id="act1" placeholder="후킹 포함..." maxlength="2000" oninput="saveData()"></textarea></div>
+<div class="act-section"><h4>② 전개 (Development)</h4>
+<textarea class="input-field" id="act2" placeholder="전개..." maxlength="2000" oninput="saveData()"></textarea></div>
+<div class="act-section"><h4>③ 위기 (Crisis)</h4>
+<textarea class="input-field" id="act3" placeholder="위기..." maxlength="2000" oninput="saveData()"></textarea></div>
+<div class="act-section"><h4>④ 절정 (Climax)</h4>
+<textarea class="input-field" id="act4" placeholder="반전 포함..." maxlength="2000" oninput="saveData()"></textarea></div>
+<div class="act-section"><h4>⑤ 결말 (Resolution)</h4>
+<textarea class="input-field" id="act5" placeholder="결말..." maxlength="2000" oninput="saveData()"></textarea></div>
+<div class="action-buttons">
+<div class="button-group"><button class="btn btn-secondary" onclick="goToStep(3)">이전</button></div>
+<div class="button-group">
+<button class="btn btn-secondary" onclick="downloadWord()">워드 다운로드</button>
+<button class="btn" onclick="goToStep(5)">다음</button>
+</div></div>
+</div>
+
+<!-- 5단계: 주인공 시트 -->
+<div class="step-container" data-step="5">
+<div class="content-header"><h2>5단계: 주인공 캐릭터 시트</h2><p>일관된 비주얼 자산을 생성합니다</p></div>
+<div class="note">※ 레퍼런스 이미지 업로드 후 포즈 4종, 표정 7종이 자동 생성됩니다</div>
+<div class="form-section"><h3>캐릭터 이름</h3>
+<input type="text" class="input-field" id="mainCharName" placeholder="주인공 이름" readonly></div>
+<div class="form-section"><h3>레퍼런스 이미지</h3>
+<div class="upload-area" id="mainUpload">
+<div style="font-size:40px">📷</div>
+<p>클릭 또는 드래그앤드롭</p>
+<input type="file" accept="image/*" id="mainFile">
+</div>
+<div id="mainPreview" class="hidden" style="text-align:center;margin-top:10px">
+<img id="mainImg" style="max-width:250px;border-radius:8px">
+</div></div>
+<button class="btn btn-generate" onclick="generateMainChar()">🎲 캐릭터 시트 생성</button>
+<div class="image-grid" id="mainGrid"></div>
+<div class="action-buttons">
+<div class="button-group"><button class="btn btn-secondary" onclick="goToStep(4)">이전</button></div>
+<div class="button-group">
+<button class="btn btn-secondary" onclick="downloadAllImages('main')">전체 다운로드</button>
+<button class="btn btn-secondary" onclick="downloadWord()">워드 다운로드</button>
+<button class="btn" onclick="goToStep(6)">다음</button>
+</div></div>
+</div>
+
+<!-- 6단계: 추가 캐릭터 -->
+<div class="step-container" data-step="6">
+<div class="content-header"><h2>6단계: 추가 캐릭터 시트</h2></div>
+<div id="subCharsContainer"></div>
+<button class="add-btn" onclick="addSubCharacter()">+ 캐릭터 추가</button>
+<div class="action-buttons">
+<div class="button-group">
+<button class="btn btn-secondary" onclick="goToStep(5)">이전</button>
+<button class="btn btn-secondary" onclick="alert('건너뛰기')">건너뛰기</button>
+</div>
+<div class="button-group">
+<button class="btn btn-secondary" onclick="downloadWord()">워드 다운로드</button>
+<button class="btn" onclick="goToStep(7)">다음</button>
+</div></div>
+</div>
+
+<!-- 7단계: 배경 -->
+<div class="step-container" data-step="7">
+<div class="content-header"><h2>7단계: 기본 배경 제작</h2><p>6개 시점의 배경 이미지를 생성합니다</p></div>
+<div class="note">※ 드론뷰/탑다운/아이레벨/로우앵글/클로즈업/익스트림 자동 생성</div>
+<div id="backgroundsContainer"></div>
+<button class="add-btn" onclick="addBackground()">+ 배경 추가</button>
+<div class="action-buttons">
+<div class="button-group"><button class="btn btn-secondary" onclick="goToStep(6)">이전</button></div>
+<div class="button-group">
+<button class="btn btn-secondary" onclick="downloadWord()">워드 다운로드</button>
+<button class="btn" onclick="goToStep(8)">다음</button>
+</div></div>
+</div>
+
+<!-- 8단계: 큐시트 -->
+<div class="step-container" data-step="8">
+<div class="content-header"><h2>8단계: 큐시트 및 KEY 이미지</h2></div>
+<div class="tone-section">
+<div class="tone-header">
+<div><strong>🎨 Tone & Manner Reference</strong></div>
+<div style="display:flex;align-items:center;gap:10px">
+<span id="toneLabel">Auto Match: OFF</span>
+<div class="switch" id="toneToggle"><div class="switch-slider"></div></div>
+</div></div>
+<div class="upload-area" id="toneUpload">
+<div style="font-size:32px">🎭</div>
+<p>톤앤매너 레퍼런스 업로드</p>
+<input type="file" accept="image/*" id="toneFile">
+</div>
+<div id="tonePreview" class="hidden" style="text-align:center;margin-top:10px">
+<img id="toneImg" style="max-width:250px;border-radius:8px">
+</div></div>
+<div class="note">※ 10초 단위 씬 자동 분할, 각 샷에 KEY 이미지 생성</div>
+<div class="button-group" style="margin-bottom:20px">
+<button class="btn btn-generate" onclick="autoGenCuesheet()">🎲 큐시트 자동 생성</button>
+<button class="btn btn-secondary" onclick="addScene()">+ 씬 추가</button>
+</div>
+<div id="scenesContainer"></div>
+<div class="action-buttons">
+<div class="button-group"><button class="btn btn-secondary" onclick="goToStep(7)">이전</button></div>
+<div class="button-group">
+<button class="btn btn-secondary" onclick="downloadWord()">워드 다운로드</button>
+<button class="btn" onclick="goToStep(9)">다음</button>
+</div></div>
+</div>
+
+<!-- 9단계: 기획안 총정리 -->
+<div class="step-container" data-step="9">
+<div class="hero-section">
+<div class="hero-title">HOOK으로 잡고, Logline으로 설득합니다</div>
+<div class="hero-subtitle">최종 기획안 완성</div>
+</div>
+<div class="content-header"><h2>9단계: 기획안 총정리</h2></div>
+<div class="note">※ 1~5번은 AI 자동 생성, 6번은 직접 작성</div>
+<button class="btn btn-generate" onclick="autoGenPlan()" style="margin-bottom:20px">🤖 AI 자동 생성 (1~5번)</button>
+<div class="accordion-item">
+<div class="accordion-header" onclick="toggleAcc(0)">
+<div class="accordion-title"><span>🎣</span><span>1. Hook (1줄)</span></div>
+<span class="accordion-arrow">▼</span>
+</div>
+<div class="accordion-content">
+<textarea class="input-field" id="hook" placeholder="Hook..." maxlength="200" oninput="saveData()"></textarea>
+<div class="char-counter" id="hookCount">0/200</div>
+</div></div>
+<div class="accordion-item">
+<div class="accordion-header" onclick="toggleAcc(1)">
+<div class="accordion-title"><span>📝</span><span>2. Logline (3줄)</span></div>
+<span class="accordion-arrow">▼</span>
+</div>
+<div class="accordion-content">
+<textarea class="input-field" id="logline" placeholder="Logline..." maxlength="500" oninput="saveData()"></textarea>
+<div class="char-counter" id="loglineCount">0/500</div>
+</div></div>
+<div class="accordion-item">
+<div class="accordion-header" onclick="toggleAcc(2)">
+<div class="accordion-title"><span>📖</span><span>3. Synopsis</span></div>
+<span class="accordion-arrow">▼</span>
+</div>
+<div class="accordion-content">
+<textarea class="input-field" id="synopsis" placeholder="Synopsis..." maxlength="1500" oninput="saveData()" style="min-height:200px"></textarea>
+</div></div>
+<div class="accordion-item">
+<div class="accordion-header" onclick="toggleAcc(3)">
+<div class="accordion-title"><span>📊</span><span>4. 캐릭터 아치</span></div>
+<span class="accordion-arrow">▼</span>
+</div>
+<div class="accordion-content">
+<textarea class="input-field" id="charArch" placeholder="캐릭터 변화..." maxlength="1000" oninput="saveData()"></textarea>
+</div></div>
+<div class="accordion-item">
+<div class="accordion-header" onclick="toggleAcc(4)">
+<div class="accordion-title"><span>💰</span><span>5. 시장성/타겟/경쟁작</span></div>
+<span class="accordion-arrow">▼</span>
+</div>
+<div class="accordion-content">
+<textarea class="input-field" id="market" placeholder="시장 분석..." maxlength="1000" oninput="saveData()"></textarea>
+</div></div>
+<div class="accordion-item">
+<div class="accordion-header" onclick="toggleAcc(5)">
+<div class="accordion-title"><span>🎬</span><span>6. 감독의 의도 (직접 작성)</span></div>
+<span class="accordion-arrow">▼</span>
+</div>
+<div class="accordion-content">
+<p style="color:#d32f2f;margin-bottom:10px;font-weight:bold">※ 직접 작성 (5000자)</p>
+<textarea class="input-field" id="director" placeholder="감독의 의도..." maxlength="5000" oninput="updateCounter('director','directorCount',5000)" style="min-height:300px"></textarea>
+<div class="char-counter" id="directorCount">0/5000</div>
+</div></div>
+<div class="action-buttons">
+<div class="button-group"><button class="btn btn-secondary" onclick="goToStep(8)">이전</button></div>
+<div class="button-group">
+<button class="btn btn-secondary" onclick="downloadFinal()">📥 최종 기획안 (전체 통합)</button>
+<button class="btn" onclick="alert('완료!')">완료</button>
+</div></div>
+</div>
+
+</div>
+
+<!-- 모달 -->
+<div class="modal" id="modal">
+<div class="modal-content">
+<span class="modal-close" onclick="closeModal()">&times;</span>
+<img id="modalImg">
+</div></div>
+
+<!-- 로딩 -->
+<div class="loading-overlay" id="loading">
+<div class="loading-content">
+<div class="spinner"></div>
+<h3 style="color:#A56744;margin-bottom:10px">생성 중...</h3>
+<p style="color:#666">잠시만 기다려주세요</p>
+</div></div>
+
+<!-- 저장 상태 -->
+<div class="save-status" id="saveStatus">자동 저장됨</div>
+
+<script src="https://cdn.jsdelivr.net/npm/docx@7.8.2/build/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+
+<script>
+let currentStep=1;
+let data={
+step1:{prodType:'',vidLen:'',world:''},
+step2:{title:'',plot:'',worldDesc:''},
+step3:{chars:[]},
+step4:{act1:'',act2:'',act3:'',act4:'',act5:''},
+step5:{mainChar:{name:'',ref:null,imgs:{}}},
+step6:{subChars:[]},
+step7:{bgs:[]},
+step8:{tone:{id:null,data:null,match:false},scenes:[]},
+step9:{hook:'',logline:'',synopsis:'',charArch:'',market:'',director:''}
+};
+let charCounter=0,subCharCounter=0,bgCounter=0,sceneCounter=0,shotCounter=0;
+let apiKey='';
+
+const GEMINI_API_URL='https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+
+const CHAR_POSES=[{id:'front',label:'앞'},{id:'back',label:'뒤'},{id:'side',label:'옆'},{id:'sit',label:'앉음'}];
+const CHAR_EXPRS=[{id:'neutral',label:'Neutral'},{id:'happy',label:'Happy'},{id:'angry',label:'Angry'},{id:'sad',label:'Sad'},{id:'surprised',label:'Surprised'},{id:'flustered',label:'Flustered'},{id:'laugh',label:'Laughing'}];
+const BG_VIEWS=[{id:'drone',label:'드론뷰'},{id:'topdown',label:'탑다운뷰'},{id:'eye',label:'아이레벨뷰'},{id:'low',label:'로우앵글뷰'},{id:'close',label:'클로즈업뷰'},{id:'extreme',label:'익스트림뷰'}];
+
+function init(){
+loadData();
+loadApiKey();
+setupButtons();
+setupSidebar();
+setupUploads();
+updateProgress();
+document.getElementById('mainCharName').value='주인공';
+addCharacter();
+}
+
+function saveApiKey(){
+apiKey=document.getElementById('apiKey').value;
+localStorage.setItem('geminiApiKey',apiKey);
+}
+
+function loadApiKey(){
+const saved=localStorage.getItem('geminiApiKey');
+if(saved){
+apiKey=saved;
+document.getElementById('apiKey').value=saved;
+}
+}
+
+async function testApiKey(){
+const btn=event.target;
+const originalText=btn.textContent;
+btn.disabled=true;
+btn.textContent='테스트 중...';
+btn.style.background='#999';
+
+const testPrompt='안녕하세요. 이것은 API 연결 테스트입니다. "연결 성공"이라고 짧게 답변해주세요.';
+const result=await callGeminiAPI(testPrompt);
+
+if(result){
+btn.style.background='#4CAF50';
+btn.textContent='✓ 연결 성공!';
+alert('✅ API 키가 정상적으로 작동합니다!\n\n응답: '+result.substring(0,100));
+setTimeout(()=>{
+btn.textContent=originalText;
+btn.disabled=false;
+},3000);
+}else{
+btn.style.background='#d32f2f';
+btn.textContent='✗ 연결 실패';
+setTimeout(()=>{
+btn.style.background='#4CAF50';
+btn.textContent=originalText;
+btn.disabled=false;
+},3000);
+}
+}
+
+async function callGeminiAPI(prompt){
+if(!apiKey||apiKey.trim()===''){
+alert('⚠️ Gemini API 키를 먼저 입력해주세요.\n\n1. https://aistudio.google.com/app/apikey 접속\n2. API 키 생성\n3. 사이드바 상단에 입력');
+return null;
+}
+try{
+const requestBody={
+contents:[{
+parts:[{text:prompt}]
+}]
+};
+console.log('🤖 Gemini API 요청 시작...');
+console.log('📍 URL:',GEMINI_API_URL);
+console.log('🔑 API Key (앞 10자):', apiKey.substring(0,10)+'...');
+console.log('📝 프롬프트 길이:',prompt.length,'자');
+
+const response=await fetch(`${GEMINI_API_URL}?key=${apiKey}`,{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify(requestBody)
+});
+
+console.log('📡 응답 상태:',response.status,response.statusText);
+
+if(!response.ok){
+const errorText=await response.text();
+console.error('❌ 에러 응답:',errorText);
+let errorMsg='API 호출 실패';
+try{
+const error=JSON.parse(errorText);
+console.error('❌ 파싱된 에러:',error);
+errorMsg=error.error?.message||JSON.stringify(error);
+if(errorMsg.includes('API_KEY_INVALID')||errorMsg.includes('invalid')){
+errorMsg='❌ API 키가 유효하지 않습니다.\n\n입력한 키: '+apiKey.substring(0,10)+'...\n\n1. 키를 다시 복사\n2. 공백 없이 붙여넣기\n3. 다시 테스트';
+}else if(errorMsg.includes('API key not valid')){
+errorMsg='❌ API 키가 활성화되지 않았습니다.\n\n1. https://console.cloud.google.com 접속\n2. Generative Language API 활성화\n3. 새 키 발급';
+}else if(errorMsg.includes('PERMISSION_DENIED')){
+errorMsg='❌ API 권한이 없습니다.\n\n해결방법:\n1. Google Cloud Console 접속\n2. Generative Language API 활성화\n3. 결제 정보 등록 (무료 티어 포함)';
+}else if(errorMsg.includes('QUOTA_EXCEEDED')||errorMsg.includes('quota')){
+errorMsg='❌ API 할당량 초과\n\n무료 한도:\n- 분당 15회\n- 일당 1,500회\n\n1분 후 다시 시도하거나\n결제 계정으로 업그레이드하세요.';
+}
+}catch(e){
+errorMsg='서버 응답:\n'+errorText.substring(0,500);
+}
+throw new Error(errorMsg);
+}
+
+const result=await response.json();
+console.log('✅ API 응답 받음:',result);
+
+if(!result.candidates||result.candidates.length===0){
+console.error('❌ candidates 없음:',result);
+if(result.promptFeedback){
+console.error('❌ 프롬프트 피드백:',result.promptFeedback);
+throw new Error('프롬프트가 차단되었습니다: '+JSON.stringify(result.promptFeedback));
+}
+throw new Error('AI가 응답을 생성하지 못했습니다.');
+}
+
+const candidate=result.candidates[0];
+console.log('📄 Candidate:',candidate);
+
+if(candidate.finishReason==='SAFETY'){
+console.error('❌ 안전 필터 차단:',candidate.safetyRatings);
+throw new Error('안전 필터 차단\n\n프롬프트를 수정해주세요.');
+}
+
+if(!candidate.content||!candidate.content.parts||candidate.content.parts.length===0){
+console.error('❌ content 없음:',candidate);
+throw new Error('빈 응답이 반환되었습니다.');
+}
+
+const text=candidate.content.parts[0].text;
+console.log('✅ 생성 완료 (길이:'+text.length+'자)');
+console.log('📝 생성된 텍스트 (처음 100자):',text.substring(0,100));
+return text;
+
+}catch(error){
+console.error('❌❌❌ 전체 에러 ❌❌❌');
+console.error('에러 타입:',error.constructor.name);
+console.error('에러 메시지:',error.message);
+console.error('에러 스택:',error.stack);
+alert('🚨 AI 생성 오류\n\n'+error.message+'\n\n━━━━━━━━━━━━━━━━\n\n반드시 F12 눌러서\n콘솔 탭을 확인하세요!\n\n빨간 에러 메시지를\n캡처해서 보내주세요.');
+return null;
+}
+}
+
+function goToStep(step){
+if(currentStep===1&&step>1){
+if(!data.step1.prodType||!data.step1.vidLen||!data.step1.world){
+alert('모든 항목을 선택하세요');return;
+}
+}
+if(currentStep===3)saveChars();
+currentStep=step;
+document.querySelectorAll('.step-container').forEach(c=>c.classList.remove('active'));
+document.querySelector(`.step-container[data-step="${step}"]`).classList.add('active');
+document.querySelectorAll('.step-item').forEach(i=>{
+i.classList.remove('active');
+if(parseInt(i.dataset.step)===step)i.classList.add('active');
+});
+updateProgress();
+window.scrollTo(0,0);
+}
+
+function updateProgress(){
+const p=(currentStep/9)*100;
+document.getElementById('progressFill').style.width=p+'%';
+document.getElementById('progressText').textContent=`${currentStep}/9 단계 (${Math.round(p)}%)`;
+}
+
+function setupButtons(){
+['productionType','videoLength','worldview'].forEach(id=>{
+document.querySelectorAll(`#${id} .selection-button`).forEach(btn=>{
+btn.addEventListener('click',()=>{
+document.querySelectorAll(`#${id} .selection-button`).forEach(b=>b.classList.remove('selected'));
+btn.classList.add('selected');
+if(id==='productionType')data.step1.prodType=btn.dataset.value;
+else if(id==='videoLength')data.step1.vidLen=btn.dataset.value;
+else data.step1.world=btn.dataset.value;
+saveData();
+});
+});
+});
+}
+
+function setupSidebar(){
+document.querySelectorAll('.step-item').forEach(i=>{
+i.addEventListener('click',()=>goToStep(parseInt(i.dataset.step)));
+});
+}
+
+function setupUploads(){
+setupUpload('mainUpload','mainFile',(f)=>{
+const r=new FileReader();
+r.onload=(e)=>{
+data.step5.mainChar.ref=e.target.result;
+document.getElementById('mainPreview').classList.remove('hidden');
+document.getElementById('mainImg').src=e.target.result;
+saveData();
+};
+r.readAsDataURL(f);
+});
+setupUpload('toneUpload','toneFile',(f)=>{
+const r=new FileReader();
+r.onload=(e)=>{
+data.step8.tone.data=e.target.result;
+data.step8.tone.id='TONE_001';
+document.getElementById('tonePreview').classList.remove('hidden');
+document.getElementById('toneImg').src=e.target.result;
+document.getElementById('toneToggle').classList.add('active');
+data.step8.tone.match=true;
+document.getElementById('toneLabel').textContent='Auto Match: ON';
+saveData();
+};
+r.readAsDataURL(f);
+});
+document.getElementById('toneToggle').addEventListener('click',()=>{
+const t=document.getElementById('toneToggle');
+t.classList.toggle('active');
+data.step8.tone.match=t.classList.contains('active');
+document.getElementById('toneLabel').textContent=data.step8.tone.match?'Auto Match: ON':'Auto Match: OFF';
+saveData();
+});
+}
+
+function setupUpload(areaId,inputId,callback){
+const area=document.getElementById(areaId);
+const input=document.getElementById(inputId);
+area.addEventListener('click',()=>input.click());
+area.addEventListener('dragover',e=>{e.preventDefault();area.classList.add('dragover')});
+area.addEventListener('dragleave',()=>area.classList.remove('dragover'));
+area.addEventListener('drop',e=>{
+e.preventDefault();
+area.classList.remove('dragover');
+if(e.dataTransfer.files.length>0)callback(e.dataTransfer.files[0]);
+});
+input.addEventListener('change',e=>{
+if(e.target.files.length>0)callback(e.target.files[0]);
+});
+}
+
+function addCharacter(){
+const id=charCounter++;
+const card=document.createElement('div');
+card.className='character-card';
+card.id=`char-${id}`;
+card.innerHTML=`
+<div class="character-card-header">
+<div class="card-title">캐릭터 ${id+1}</div>
+<div style="display:flex;gap:8px">
+<button class="btn btn-generate" style="padding:6px 14px;font-size:12px" onclick="generateCharacter(${id})">🤖 AI 생성</button>
+<button class="remove-btn" onclick="removeChar(${id})">삭제</button>
+</div>
+</div>
+<div class="input-row">
+<div><label>이름</label><input type="text" class="input-field" id="charName-${id}" oninput="saveChars()"></div>
+<div><label>성별</label>
+<select class="input-field" id="charGender-${id}" onchange="saveChars()">
+<option value="">선택</option><option value="여성">여성</option><option value="남성">남성</option><option value="무성">무성</option>
+</select></div>
+</div>
+<div class="input-row">
+<div><label>종족</label>
+<select class="input-field" id="charSpecies-${id}" onchange="saveChars()">
+<option value="">선택</option><option value="인간">인간</option><option value="동물">동물</option><option value="그 외">그 외</option>
+</select></div>
+<div><label>역할</label>
+<select class="input-field" id="charRole-${id}" onchange="saveChars()">
+<option value="">선택</option><option value="주인공">주인공</option><option value="조연">조연</option><option value="악역">악역</option><option value="기타">기타</option>
+</select></div>
+</div>
+<div><label>캐릭터 설정</label>
+<textarea class="input-field" id="charDesc-${id}" maxlength="3000" oninput="saveChars()"></textarea></div>
+<div style="margin-top:15px"><label>안티 포스</label>
+<div class="toggle-group">
+<button class="toggle-btn active" onclick="toggleAnti(${id},false)">없음</button>
+<button class="toggle-btn" onclick="toggleAnti(${id},true)">있음</button>
+</div>
+<div class="anti-force-container hidden" id="anti-${id}">
+<div class="checkbox-group">
+<div class="checkbox-item"><input type="checkbox" id="af-vil-${id}" onchange="saveChars()"><label>악역</label></div>
+<div class="checkbox-item"><input type="checkbox" id="af-dis-${id}" onchange="saveChars()"><label>자연재해</label></div>
+<div class="checkbox-item"><input type="checkbox" id="af-org-${id}" onchange="saveChars()"><label>단체 기관</label></div>
+<div class="checkbox-item"><input type="checkbox" id="af-sys-${id}" onchange="saveChars()"><label>시스템</label></div>
+<div class="checkbox-item"><input type="checkbox" id="af-ill-${id}" onchange="saveChars()"><label>질병</label></div>
+<div class="checkbox-item"><input type="checkbox" id="af-tra-${id}" onchange="saveChars()"><label>트라우마</label></div>
+<div class="checkbox-item"><input type="checkbox" id="af-oth-${id}" onchange="saveChars()"><label>기타</label></div>
+</div>
+<input type="text" class="input-field" id="af-other-${id}" placeholder="기타 내용" style="margin-top:10px" oninput="saveChars()">
+</div></div>
+`;
+document.getElementById('charactersContainer').appendChild(card);
+}
+
+function removeChar(id){
+document.getElementById(`char-${id}`).remove();
+saveChars();
+}
+
+function toggleAnti(id,has){
+const btns=document.querySelectorAll(`#char-${id} .toggle-btn`);
+btns.forEach(b=>b.classList.remove('active'));
+btns[has?1:0].classList.add('active');
+const cont=document.getElementById(`anti-${id}`);
+if(has)cont.classList.remove('hidden');
+else cont.classList.add('hidden');
+saveChars();
+}
+
+async function generateCharacter(id){
+showLoading();
+const plot=data.step2.plot||'줄거리 없음';
+const worldDesc=data.step2.worldDesc||'세계관 없음';
+const charNum=id+1;
+
+const prompt=`당신은 전문 시나리오 작가입니다. 다음 정보를 바탕으로 캐릭터를 생성해주세요.
+
+[작품 정보]
+- 줄거리: ${plot}
+- 세계관: ${worldDesc}
+
+[캐릭터 번호]
+${charNum}번째 캐릭터 (1번=주인공, 2번 이상=조연/악역)
+
+[요구사항]
+다음 형식의 JSON으로만 응답해주세요:
+{
+  "name": "캐릭터 이름 (한글)",
+  "gender": "여성 또는 남성 또는 무성",
+  "species": "인간 또는 동물 또는 그 외",
+  "role": "주인공 또는 조연 또는 악역",
+  "desc": "캐릭터 상세 설명 (외모, 성격, 배경, 습관, 특징 등 500-800자)",
+  "hasAnti": true 또는 false,
+  "antiForce": ["vil", "dis", "org", "sys", "ill", "tra", "oth"] 중 해당하는 것들,
+  "antiOther": "기타 안티포스 설명"
+}
+
+JSON만 출력하고 다른 텍스트는 포함하지 마세요.`;
+
+const result=await callGeminiAPI(prompt);
+if(result){
+try{
+const cleaned=result.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
+const char=JSON.parse(cleaned);
+document.getElementById(`charName-${id}`).value=char.name||'';
+document.getElementById(`charGender-${id}`).value=char.gender||'';
+document.getElementById(`charSpecies-${id}`).value=char.species||'';
+document.getElementById(`charRole-${id}`).value=char.role||'';
+document.getElementById(`charDesc-${id}`).value=char.desc||'';
+toggleAnti(id,char.hasAnti||false);
+if(char.hasAnti&&char.antiForce){
+char.antiForce.forEach(f=>{
+const checkbox=document.getElementById(`af-${f}-${id}`);
+if(checkbox)checkbox.checked=true;
+});
+if(char.antiOther)document.getElementById(`af-other-${id}`).value=char.antiOther;
+}
+saveChars();
+}catch(e){
+alert('캐릭터 생성 오류: JSON 파싱 실패');
+console.error(e,result);
+}
+}
+hideLoading();
+}
+
+function saveChars(){
+const chars=[];
+document.querySelectorAll('.character-card').forEach(card=>{
+const id=card.id.split('-')[1];
+const anti=!document.getElementById(`anti-${id}`).classList.contains('hidden');
+const antiForce=[];
+['vil','dis','org','sys','ill','tra','oth'].forEach(t=>{
+if(document.getElementById(`af-${t}-${id}`)?.checked)antiForce.push(t);
+});
+chars.push({
+name:document.getElementById(`charName-${id}`)?.value||'',
+gender:document.getElementById(`charGender-${id}`)?.value||'',
+species:document.getElementById(`charSpecies-${id}`)?.value||'',
+role:document.getElementById(`charRole-${id}`)?.value||'',
+desc:document.getElementById(`charDesc-${id}`)?.value||'',
+anti:anti,
+antiForce:antiForce,
+antiOther:document.getElementById(`af-other-${id}`)?.value||''
+});
+});
+data.step3.chars=chars;
+saveData();
+}
+
+async function generate5Acts(){
+showLoading();
+const plot=data.step2.plot||'줄거리 없음';
+const worldDesc=data.step2.worldDesc||'세계관 없음';
+const videoLength=data.step1.vidLen||'10분';
+const chars=data.step3.chars||[];
+const charInfo=chars.map(c=>`${c.name}(${c.role})`).join(', ')||'캐릭터 없음';
+
+const prompt=`당신은 전문 시나리오 작가입니다. 다음 정보를 바탕으로 5막 구조를 상세히 작성해주세요.
+
+[작품 정보]
+- 영상 길이: ${videoLength}
+- 줄거리: ${plot}
+- 세계관: ${worldDesc}
+- 주요 캐릭터: ${charInfo}
+
+[요구사항]
+5막 구조를 다음 형식으로 작성하세요. 각 막은 600-1000자 분량:
+
+1. Act 1 (발단 - Setup):
+   - 시간 표시 포함
+   - 주인공과 일상 소개
+   - 사건의 발단 (후킹 포인트)
+
+2. Act 2 (전개 - Development):
+   - 새로운 세계 진입
+   - 조력자/적대자 등장
+   - 목표 설정
+
+3. Act 3 (위기 - Crisis):
+   - 최대 위기 상황
+   - 주인공의 고민과 갈등
+   - 모든 것이 무너지는 순간
+
+4. Act 4 (클라이맥스 - Climax):
+   - 반전 요소
+   - 문제 해결 시도
+   - 감동적 순간
+
+5. Act 5 (결말 - Resolution):
+   - 변화한 주인공
+   - 새로운 일상
+   - 여운과 메시지
+
+각 막을 구분하여 작성하고, 구체적이고 상세하게 묘사해주세요.`;
+
+const result=await callGeminiAPI(prompt);
+if(result){
+const acts=result.split(/Act\s*[1-5]|①|②|③|④|⑤|\d+\./i).filter(s=>s.trim());
+if(acts.length>=5){
+document.getElementById('act1').value=acts[0].trim();
+document.getElementById('act2').value=acts[1].trim();
+document.getElementById('act3').value=acts[2].trim();
+document.getElementById('act4').value=acts[3].trim();
+document.getElementById('act5').value=acts[4].trim();
+}else{
+const parts=result.split('\n\n');
+const actTexts=['','','','',''];
+let currentAct=-1;
+parts.forEach(part=>{
+if(part.match(/발단|setup|act\s*1/i))currentAct=0;
+else if(part.match(/전개|development|act\s*2/i))currentAct=1;
+else if(part.match(/위기|crisis|act\s*3/i))currentAct=2;
+else if(part.match(/클라이맥스|climax|act\s*4/i))currentAct=3;
+else if(part.match(/결말|resolution|act\s*5/i))currentAct=4;
+else if(currentAct>=0)actTexts[currentAct]+=(actTexts[currentAct]?'\n\n':'')+part;
+});
+for(let i=0;i<5;i++){
+if(actTexts[i])document.getElementById(`act${i+1}`).value=actTexts[i].trim();
+}
+}
+saveData();
+alert('5막 구조 생성 완료!');
+}
+hideLoading();
+}
+
+function generateMainChar(){
+if(!data.step5.mainChar.ref){alert('레퍼런스 이미지를 업로드하세요');return;}
+const grid=document.getElementById('mainGrid');
+grid.innerHTML='';
+[...CHAR_POSES,...CHAR_EXPRS].forEach(item=>{
+genImgCard(grid,item.id,item.label,'main');
+});
+saveData();
+}
+
+function genImgCard(container,id,label,type){
+const card=document.createElement('div');
+card.className='image-card';
+card.innerHTML=`
+<div class="image-preview generating" id="${type}-${id}-preview">
+<div style="color:#999;font-size:12px">생성 중...</div>
+</div>
+<div class="image-label">${label}</div>
+<div class="image-actions">
+<button class="icon-btn" onclick="viewImg('${type}-${id}')">👁️</button>
+<button class="icon-btn" onclick="downloadImg('${type}-${id}')">💾</button>
+<button class="icon-btn" onclick="regenImg('${type}-${id}')">🔄</button>
+</div>
+`;
+container.appendChild(card);
+setTimeout(()=>{
+const preview=document.getElementById(`${type}-${id}-preview`);
+preview.classList.remove('generating');
+preview.innerHTML=`<img src="https://via.placeholder.com/180x180/A56744/FFF?text=${label}" alt="${label}">`;
+},2000);
+}
+
+function viewImg(id){
+const preview=document.getElementById(`${id}-preview`);
+const img=preview.querySelector('img');
+if(img){
+document.getElementById('modalImg').src=img.src;
+document.getElementById('modal').classList.add('active');
+}
+}
+
+function downloadImg(id){
+const preview=document.getElementById(`${id}-preview`);
+const img=preview.querySelector('img');
+if(img){
+const a=document.createElement('a');
+a.href=img.src;
+a.download=`${id}.png`;
+a.click();
+}
+}
+
+function regenImg(id){
+const preview=document.getElementById(`${id}-preview`);
+preview.classList.add('generating');
+preview.innerHTML='<div style="color:#999;font-size:12px">재생성 중...</div>';
+setTimeout(()=>{
+preview.classList.remove('generating');
+const label=preview.parentElement.querySelector('.image-label').textContent;
+preview.innerHTML=`<img src="https://via.placeholder.com/180x180/A56744/FFF?text=${label}" alt="${label}">`;
+},2000);
+}
+
+function downloadAllImages(type){alert('전체 이미지 다운로드');}
+
+function closeModal(){document.getElementById('modal').classList.remove('active');}
+
+function addSubCharacter(){
+const id=subCharCounter++;
+const card=document.createElement('div');
+card.className='character-card';
+card.id=`subchar-${id}`;
+card.innerHTML=`
+<div class="character-card-header">
+<div class="card-title">추가 캐릭터 ${id+1}</div>
+<button class="remove-btn" onclick="removeSub(${id})">삭제</button>
+</div>
+<div class="input-row">
+<div><label>이름</label>
+<div class="input-with-button">
+<input type="text" class="input-field" id="subName-${id}">
+<button class="random-btn" onclick="genName(${id})">🎲</button>
+</div></div>
+</div>
+<div class="upload-area" id="subUpload-${id}">
+<div style="font-size:32px">📷</div><p>레퍼런스 이미지</p>
+<input type="file" accept="image/*" id="subFile-${id}">
+</div>
+<button class="btn btn-generate" onclick="genSubChar(${id})">🎲 시트 생성</button>
+<div class="image-grid" id="subGrid-${id}"></div>
+`;
+document.getElementById('subCharsContainer').appendChild(card);
+setupUpload(`subUpload-${id}`,`subFile-${id}`,()=>{});
+}
+
+function removeSub(id){document.getElementById(`subchar-${id}`).remove();}
+function genName(id){
+const names=['지우','서준','하은','민서','도윤'];
+document.getElementById(`subName-${id}`).value=names[Math.floor(Math.random()*names.length)];
+}
+function genSubChar(id){
+const grid=document.getElementById(`subGrid-${id}`);
+grid.innerHTML='';
+[...CHAR_POSES,...CHAR_EXPRS].forEach(item=>genImgCard(grid,item.id,item.label,`sub${id}`));
+}
+
+function addBackground(){
+const id=bgCounter++;
+const card=document.createElement('div');
+card.className='bg-card';
+card.id=`bg-${id}`;
+card.innerHTML=`
+<div class="bg-card-header">
+<div class="card-title">배경 ${id+1}</div>
+<button class="remove-btn" onclick="removeBg(${id})">삭제</button>
+</div>
+<div><label>장소 이름 (필수)</label>
+<input type="text" class="input-field" id="bgName-${id}" placeholder="예: 학교 교실"></div>
+<div class="upload-area" id="bgUpload-${id}" style="margin-top:10px">
+<div style="font-size:32px">🏞️</div><p>레퍼런스 이미지</p>
+<input type="file" accept="image/*" id="bgFile-${id}">
+</div>
+<button class="btn btn-generate" onclick="genBg(${id})">🎲 6개 시점 생성</button>
+<div class="image-grid" id="bgGrid-${id}"></div>
+`;
+document.getElementById('backgroundsContainer').appendChild(card);
+setupUpload(`bgUpload-${id}`,`bgFile-${id}`,()=>{});
+}
+
+function removeBg(id){document.getElementById(`bg-${id}`).remove();}
+function genBg(id){
+const name=document.getElementById(`bgName-${id}`).value;
+if(!name){alert('장소 이름을 입력하세요');return;}
+const grid=document.getElementById(`bgGrid-${id}`);
+grid.innerHTML='';
+BG_VIEWS.forEach(v=>genImgCard(grid,v.id,v.label,`bg${id}`));
+}
+
+function autoGenCuesheet(){
+if(confirm('AI가 큐시트를 자동 생성합니다. 계속하시겠습니까?')){
+for(let i=0;i<3;i++)addScene();
+alert('큐시트 생성 완료!');
+}
+}
+
+function addScene(){
+const id=sceneCounter++;
+const start=id*10;
+const end=start+10;
+const scene=document.createElement('div');
+scene.className='scene-accordion';
+scene.id=`scene-${id}`;
+scene.innerHTML=`
+<div class="scene-header" onclick="toggleScene(${id})">
+<div><strong>씨 ${id+1}</strong> <span style="font-size:12px;color:#666;margin-left:10px">${fmtTime(start)} - ${fmtTime(end)}</span></div>
+<span>▼</span>
+</div>
+<div class="scene-content" id="sceneContent-${id}">
+<div id="shots-${id}"></div>
+<button class="add-btn" onclick="addShot(${id})">+ 샷 추가</button>
+</div>
+`;
+document.getElementById('scenesContainer').appendChild(scene);
+addShot(id);
+}
+
+function toggleScene(id){
+const header=document.querySelector(`#scene-${id} .scene-header`);
+const content=document.getElementById(`sceneContent-${id}`);
+header.classList.toggle('active');
+content.classList.toggle('active');
+}
+
+function addShot(sceneId){
+const shotId=shotCounter++;
+const card=document.createElement('div');
+card.className='shot-card';
+card.id=`shot-${shotId}`;
+card.innerHTML=`
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #e0e0e0">
+<strong style="color:#A56744">샷 ${shotId+1}</strong>
+<button class="remove-btn" onclick="removeShot(${sceneId},${shotId})">삭제</button>
+</div>
+<div class="key-image-preview" onclick="viewKeyImg(${shotId})" id="keyPrev-${shotId}">
+<div style="text-align:center;color:#999">
+<div style="font-size:40px">🖼️</div>
+<p style="font-size:12px">KEY 이미지 생성</p>
+</div>
+</div>
+<div class="auto-prompt hidden" id="autoPrompt-${shotId}">
+<strong>🤖 자동 프롬프트</strong>
+<div id="autoPromptText-${shotId}" style="margin-top:5px;font-family:monospace"></div>
+</div>
+<h4 style="margin-bottom:10px;color:#A56744">6섹션 프롬프트</h4>
+<div class="prompt-grid">
+<div class="prompt-section">
+<div class="prompt-label">[장면] 배경/시간/공간</div>
+<textarea class="prompt-input" id="ps-${shotId}" placeholder="예: 밝은 실내..."></textarea>
+</div>
+<div class="prompt-section">
+<div class="prompt-label">[피사체] 주요 대상</div>
+<textarea class="prompt-input" id="ps2-${shotId}" placeholder="예: 주인공..."></textarea>
+</div>
+<div class="prompt-section">
+<div class="prompt-label">[카메라] 구도/앵글</div>
+<textarea class="prompt-input" id="ps3-${shotId}" placeholder="예: 로우앵글..."></textarea>
+</div>
+<div class="prompt-section">
+<div class="prompt-label">[조명] 빛/색감</div>
+<textarea class="prompt-input" id="ps4-${shotId}" placeholder="예: 자연광..."></textarea>
+</div>
+<div class="prompt-section">
+<div class="prompt-label">[분위기] 감정/무드</div>
+<textarea class="prompt-input" id="ps5-${shotId}" placeholder="예: 따뜻함..."></textarea>
+</div>
+<div class="prompt-section">
+<div class="prompt-label">[스타일] 렌더링</div>
+<textarea class="prompt-input" id="ps6-${shotId}" placeholder="예: 시네마틱..."></textarea>
+</div>
+</div>
+<div class="button-group" style="margin-top:12px">
+<button class="btn btn-generate" onclick="genKeyImg(${shotId})">🎨 KEY 이미지 생성</button>
+<button class="btn btn-secondary" onclick="regenKeyImg(${shotId})">🔄</button>
+</div>
+`;
+document.getElementById(`shots-${sceneId}`).appendChild(card);
+}
+
+function removeShot(sceneId,shotId){
+document.getElementById(`shot-${shotId}`).remove();
+}
+
+function genKeyImg(shotId){
+const prompts=[1,2,3,4,5,6].map(i=>document.getElementById(`ps${i===1?'':i}-${shotId}`).value).filter(p=>p).join(', ');
+const autoP=prompts+', high resolution, ultra detailed, best quality';
+if(data.step8.tone.match&&data.step8.tone.id)autoP+=`\n\n[Meta]\nTONEREF_ID: ${data.step8.tone.id}\nmatch_tone: true`;
+document.getElementById('autoPrompt-${shotId}').classList.remove('hidden');
+document.getElementById('autoPromptText-${shotId}').textContent=autoP;
+const preview=document.getElementById(`keyPrev-${shotId}`);
+preview.innerHTML='<div class="generating"></div>';
+setTimeout(()=>{
+preview.innerHTML=`<img src="https://via.placeholder.com/800x450/A56744/FFF?text=KEY+Image" alt="KEY">`;
+},2000);
+}
+
+function regenKeyImg(shotId){genKeyImg(shotId);}
+function viewKeyImg(shotId){
+const img=document.querySelector(`#keyPrev-${shotId} img`);
+if(img){
+document.getElementById('modalImg').src=img.src;
+document.getElementById('modal').classList.add('active');
+}
+}
+
+async function autoGenPlan(){
+showLoading();
+const plot=data.step2.plot||'';
+const worldDesc=data.step2.worldDesc||'';
+const act1=data.step4.act1||'';
+const act2=data.step4.act2||'';
+const act3=data.step4.act3||'';
+const act4=data.step4.act4||'';
+const act5=data.step4.act5||'';
+const chars=data.step3.chars||[];
+const charInfo=chars.map(c=>`${c.name}(${c.role}): ${c.desc}`).join('\n')||'';
+
+const prompt=`당신은 전문 영화 기획자입니다. 다음 정보를 바탕으로 영화 기획안을 작성하세요.
+
+[작품 정보]
+줄거리: ${plot}
+세계관: ${worldDesc}
+캐릭터: ${charInfo}
+5막 구조:
+- Act1: ${act1}
+- Act2: ${act2}
+- Act3: ${act3}
+- Act4: ${act4}
+- Act5: ${act5}
+
+다음 5개 항목을 각각 작성해주세요:
+
+1. Hook (1줄, 200자 이내):
+작품의 핵심 메시지를 한 문장으로
+
+2. Logline (3-5줄, 500자 이내):
+주인공, 갈등, 목표, 해결을 포함한 3-5문장 요약
+
+3. Synopsis (1500자):
+5막 구조를 바탕으로 전체 스토리를 상세히 요약. 각 막의 주요 사건 포함
+
+4. 캐릭터 아치 (1000자):
+주인공의 변화 과정을 5단계로 분석:
+- 시작점
+- 전환점1
+- 최저점
+- 변화의 순간
+- 도착점
+
+5. 시장성/타겟/경쟁작 (1200자):
+- 타겟 관객 (연령, 성별, 특성)
+- 시장성 분석 (트렌드, 차별화)
+- 경쟁작 비교
+- 기대 효과
+
+각 항목을 명확히 구분하여 작성해주세요.`;
+
+const result=await callGeminiAPI(prompt);
+if(result){
+const sections={hook:'',logline:'',synopsis:'',charArch:'',market:''};
+const lines=result.split('\n');
+let currentSection='';
+
+lines.forEach(line=>{
+if(line.match(/hook|훅/i)&&!sections.hook)currentSection='hook';
+else if(line.match(/logline|로그라인/i)&&!sections.logline)currentSection='logline';
+else if(line.match(/synopsis|시놉시스/i)&&!sections.synopsis)currentSection='synopsis';
+else if(line.match(/캐릭터\s*아치|character\s*arc/i)&&!sections.charArch)currentSection='charArch';
+else if(line.match(/시장|market|타겟/i)&&!sections.market)currentSection='market';
+else if(currentSection&&line.trim()&&!line.match(/^[#*\-\d]/)){
+sections[currentSection]+=(sections[currentSection]?'\n':'')+line;
+}
+});
+
+if(sections.hook)document.getElementById('hook').value=sections.hook.trim();
+if(sections.logline)document.getElementById('logline').value=sections.logline.trim();
+if(sections.synopsis)document.getElementById('synopsis').value=sections.synopsis.trim();
+if(sections.charArch)document.getElementById('charArch').value=sections.charArch.trim();
+if(sections.market)document.getElementById('market').value=sections.market.trim();
+
+saveData();
+alert('AI 자동 생성 완료!');
+}
+hideLoading();
+}
+
+function toggleAcc(i){
+const items=document.querySelectorAll('.accordion-item');
+const header=items[i].querySelector('.accordion-header');
+const content=items[i].querySelector('.accordion-content');
+header.classList.toggle('active');
+content.classList.toggle('active');
+}
+
+function updateCounter(fieldId,countId,max){
+const field=document.getElementById(fieldId);
+const count=document.getElementById(countId);
+if(field&&count)count.textContent=`${field.value.length}/${max}`;
+saveData();
+}
+
+function generateTitle(){
+const titles=['별을 찾아서','작은 왕자의 여행','우주의 정원사'];
+document.getElementById('title').value=titles[Math.floor(Math.random()*titles.length)];
+saveData();
+}
+
+async function generatePlot(){
+showLoading();
+const title=document.getElementById('title').value||'제목 미정';
+const worldview=data.step1.world||'일반';
+const videoLength=data.step1.vidLen||'미정';
+const productionType=data.step1.prodType||'영화';
+
+const prompt=`당신은 전문 시나리오 작가입니다. 다음 정보를 바탕으로 영화/애니메이션의 줄거리를 작성해주세요.
+
+[기본 정보]
+- 제목: ${title}
+- 제작 형태: ${productionType}
+- 영상 길이: ${videoLength}
+- 세계관: ${worldview}
+
+[요구사항]
+1. 줄거리는 400-600자 분량으로 작성
+2. 명확한 시작, 전개, 클라이맥스, 결말 구조
+3. 주인공의 목표와 갈등을 구체적으로 제시
+4. 감정적 몰입을 유도하는 스토리텔링
+5. ${worldview} 세계관의 특성을 잘 반영
+
+줄거리만 작성하고, 다른 설명은 생략해주세요.`;
+
+const result=await callGeminiAPI(prompt);
+if(result){
+document.getElementById('plot').value=result.trim();
+updateCounter('plot','plotCount',5000);
+saveData();
+}
+hideLoading();
+}
+
+async function generateWorld(){
+showLoading();
+const title=document.getElementById('title').value||'제목 미정';
+const plot=document.getElementById('plot').value||'줄거리 없음';
+const worldview=data.step1.world||'일반';
+const productionType=data.step1.prodType||'영화';
+
+const prompt=`당신은 전문 시나리오 작가입니다. 다음 정보를 바탕으로 작품의 세계관을 상세히 작성해주세요.
+
+[기본 정보]
+- 제목: ${title}
+- 제작 형태: ${productionType}
+- 세계관 유형: ${worldview}
+- 줄거리: ${plot}
+
+[요구사항]
+1. 세계관 설명은 400-600자 분량
+2. 시간적 배경 (시대, 연도 등)
+3. 공간적 배경 (장소, 지리적 특징)
+4. 세계관의 독특한 설정과 규칙
+5. 사회 구조, 문화, 기술 수준 등
+6. 줄거리와 자연스럽게 연결되는 세계관
+
+세계관 설명만 작성하고, 다른 내용은 생략해주세요.`;
+
+const result=await callGeminiAPI(prompt);
+if(result){
+document.getElementById('worldDesc').value=result.trim();
+updateCounter('worldDesc','worldCount',5000);
+saveData();
+}
+hideLoading();
+}
+
+function fmtTime(sec){
+const m=Math.floor(sec/60);
+const s=sec%60;
+return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function saveData(){
+if(document.getElementById('title')){
+data.step2.title=document.getElementById('title').value;
+data.step2.plot=document.getElementById('plot').value;
+data.step2.worldDesc=document.getElementById('worldDesc').value;
+}
+if(document.getElementById('act1')){
+data.step4.act1=document.getElementById('act1').value;
+data.step4.act2=document.getElementById('act2').value;
+data.step4.act3=document.getElementById('act3').value;
+data.step4.act4=document.getElementById('act4').value;
+data.step4.act5=document.getElementById('act5').value;
+}
+if(document.getElementById('hook')){
+data.step9.hook=document.getElementById('hook').value;
+data.step9.logline=document.getElementById('logline').value;
+data.step9.synopsis=document.getElementById('synopsis').value;
+data.step9.charArch=document.getElementById('charArch').value;
+data.step9.market=document.getElementById('market').value;
+data.step9.director=document.getElementById('director').value;
+}
+localStorage.setItem('videoWorkflow_pro',JSON.stringify(data));
+showSave();
+}
+
+function loadData(){
+const saved=localStorage.getItem('videoWorkflow_pro');
+if(saved)data=JSON.parse(saved);
+}
+
+function showSave(){
+const s=document.getElementById('saveStatus');
+s.classList.add('show');
+setTimeout(()=>s.classList.remove('show'),2000);
+}
+
+function showLoading(){document.getElementById('loading').classList.add('active');}
+function hideLoading(){document.getElementById('loading').classList.remove('active');}
+
+function downloadWord(){alert(`${currentStep}단계까지 워드 다운로드`);}
+function downloadFinal(){alert('전체 통합 워드 다운로드');}
+
+document.getElementById('modal').addEventListener('click',e=>{if(e.target.id==='modal')closeModal()});
+
+init();
+</script>
+</body>
+</html>
