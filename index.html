@@ -140,8 +140,10 @@ label{display:block;margin-bottom:6px;font-weight:500;font-size:12px}
 <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#A56744;text-decoration:underline">📎 키 발급 받기</a><br>
 * 키는 로컬에만 저장됩니다<br>
 * v1 API (안정 버전) 사용<br>
-* 최신 모델 자동 선택<br>
-* 2.0-flash-exp → 1.5-flash-latest → 1.5-pro-latest
+* 작업별 최적화 모델 사용<br>
+* 빠른 작업: 2.5-flash<br>
+* 고급 작업: 3-pro-preview<br>
+* 이미지: 2.5-flash-image
 </div>
 </div>
 </div>
@@ -469,17 +471,26 @@ step9:{hook:'',logline:'',synopsis:'',charArch:'',market:'',director:''}
 let charCounter=0,subCharCounter=0,bgCounter=0,sceneCounter=0,shotCounter=0;
 let apiKey='';
 
-// Gemini API 모델 목록 (우선순위 순서 - 최신 버전)
-const GEMINI_MODELS=[
-'gemini-2.0-flash-exp',      // 2.0 실험 버전 (최신, 가장 빠름)
-'gemini-1.5-flash-latest',   // 1.5 Flash 최신 안정 버전
-'gemini-1.5-pro-latest',     // 1.5 Pro 최신 안정 버전 (고성능)
-'gemini-1.5-flash',          // 1.5 Flash 기본
-'gemini-1.5-pro',            // 1.5 Pro 기본
-'gemini-1.0-pro-latest',     // 1.0 Pro 최신
-'gemini-pro'                 // 레거시 모델
-];
-let currentModelIndex=0;
+// Gemini API 모델 설정 (작업별 최적화)
+const GEMINI_MODELS={
+// 빠른 텍스트 생성 (제목, 캐릭터명)
+quick:'gemini-2.5-flash',
+// 고급 텍스트 생성 (줄거리, 세계관, 시나리오)
+advanced:'gemini-3-pro-preview',
+// 이미지 생성
+image:'gemini-2.5-flash-image',
+// 폴백 모델 목록
+fallback:[
+'gemini-2.0-flash-exp',
+'gemini-1.5-flash-latest',
+'gemini-1.5-pro-latest',
+'gemini-1.5-flash',
+'gemini-1.5-pro',
+'gemini-1.0-pro-latest',
+'gemini-pro'
+]
+};
+let currentFallbackIndex=0;
 
 const CHAR_POSES=[{id:'front',label:'앞'},{id:'back',label:'뒤'},{id:'side',label:'옆'},{id:'sit',label:'앉음'}];
 const CHAR_EXPRS=[{id:'neutral',label:'Neutral'},{id:'happy',label:'Happy'},{id:'angry',label:'Angry'},{id:'sad',label:'Sad'},{id:'surprised',label:'Surprised'},{id:'flustered',label:'Flustered'},{id:'laugh',label:'Laughing'}];
@@ -517,16 +528,15 @@ btn.textContent='테스트 중...';
 btn.style.background='#999';
 
 const testPrompt='안녕하세요. 이것은 API 연결 테스트입니다. "연결 성공"이라고 짧게 답변해주세요.';
-const result=await callGeminiAPI(testPrompt);
+const result=await callGeminiAPI(testPrompt,'quick');
 
 if(result){
-const modelName=GEMINI_MODELS[currentModelIndex];
 btn.style.background='#4CAF50';
 btn.textContent='✓ 연결 성공!';
 const statusDiv=document.getElementById('modelStatus');
-statusDiv.textContent='✅ 연결 성공! ('+modelName+')';
+statusDiv.textContent='✅ 연결 성공! ('+GEMINI_MODELS.quick+')';
 statusDiv.style.display='block';
-alert('✅ API 키가 정상적으로 작동합니다!\n\n사용 모델: '+modelName+'\n\n응답: '+result.substring(0,100));
+alert('✅ API 키가 정상적으로 작동합니다!\n\n테스트 모델: '+GEMINI_MODELS.quick+'\n고급 모델: '+GEMINI_MODELS.advanced+'\n이미지 모델: '+GEMINI_MODELS.image+'\n\n응답: '+result.substring(0,100));
 setTimeout(()=>{
 btn.textContent=originalText;
 btn.disabled=false;
@@ -542,14 +552,25 @@ btn.disabled=false;
 }
 }
 
-async function callGeminiAPI(prompt,retryCount=0){
+async function callGeminiAPI(prompt,modelType='advanced',retryCount=0){
 if(!apiKey||apiKey.trim()===''){
 alert('⚠️ Gemini API 키를 먼저 입력해주세요.\n\n1. https://aistudio.google.com/app/apikey 접속\n2. API 키 생성\n3. 사이드바 상단에 입력');
 return null;
 }
 
-// 현재 시도할 모델 선택
-const modelName=GEMINI_MODELS[currentModelIndex];
+// 모델 선택 (작업별 최적화)
+let modelName;
+if(modelType==='quick'){
+modelName=GEMINI_MODELS.quick;
+}else if(modelType==='advanced'){
+modelName=GEMINI_MODELS.advanced;
+}else if(modelType==='image'){
+modelName=GEMINI_MODELS.image;
+}else{
+// 폴백 모델 사용
+modelName=GEMINI_MODELS.fallback[currentFallbackIndex];
+}
+
 const apiUrl=`https://generativelanguage.googleapis.com/v1/models/${modelName}:generateContent`;
 
 try{
@@ -560,7 +581,8 @@ parts:[{text:prompt}]
 };
 console.log('🤖 Gemini API 요청 시작...');
 console.log('📍 API 버전: v1 (안정 버전)');
-console.log('🎯 모델명:',modelName);
+console.log('🎯 작업 유형:',modelType);
+console.log('🤖 모델명:',modelName);
 console.log('📍 URL:',apiUrl);
 console.log('🔑 API Key (앞 10자):', apiKey.substring(0,10)+'...');
 console.log('📝 프롬프트 길이:',prompt.length,'자');
@@ -584,14 +606,18 @@ const error=JSON.parse(errorText);
 console.error('❌ 파싱된 에러:',error);
 errorMsg=error.error?.message||JSON.stringify(error);
 
-// 모델을 찾을 수 없는 경우 다음 모델 시도
+// 모델을 찾을 수 없는 경우 폴백 모델 시도
 if(errorMsg.includes('not found')||errorMsg.includes('not supported')||response.status===404){
-if(currentModelIndex<GEMINI_MODELS.length-1){
-console.log('⚠️ 모델 '+modelName+' 사용 불가. 다음 모델 시도...');
-currentModelIndex++;
-return await callGeminiAPI(prompt,retryCount+1);
+if(modelType!=='fallback'&&retryCount===0){
+console.log('⚠️ 모델 '+modelName+' 사용 불가. 폴백 모델 시도...');
+currentFallbackIndex=0;
+return await callGeminiAPI(prompt,'fallback',retryCount+1);
+}else if(modelType==='fallback'&&currentFallbackIndex<GEMINI_MODELS.fallback.length-1){
+console.log('⚠️ 폴백 모델 '+modelName+' 사용 불가. 다음 폴백 모델 시도...');
+currentFallbackIndex++;
+return await callGeminiAPI(prompt,'fallback',retryCount+1);
 }else{
-errorMsg='❌ 사용 가능한 모델이 없습니다.\n\n시도한 모델:\n'+GEMINI_MODELS.join('\n')+'\n\nAPI 키가 Gemini API를 사용할 수 있는지\nGoogle AI Studio에서 확인하세요.';
+errorMsg='❌ 사용 가능한 모델이 없습니다.\n\n시도한 모델:\n- '+modelName+'\n- 폴백: '+GEMINI_MODELS.fallback.join(', ')+'\n\nAPI 키가 Gemini API를 사용할 수 있는지\nGoogle AI Studio에서 확인하세요.';
 }
 }else if(errorMsg.includes('API_KEY_INVALID')||errorMsg.includes('invalid')){
 errorMsg='❌ API 키가 유효하지 않습니다.\n\n입력한 키: '+apiKey.substring(0,10)+'...\n\n1. 키를 다시 복사\n2. 공백 없이 붙여넣기\n3. 다시 테스트';
@@ -635,7 +661,8 @@ throw new Error('빈 응답이 반환되었습니다.');
 
 const text=candidate.content.parts[0].text;
 console.log('✅✅✅ 생성 성공! ✅✅✅');
-console.log('🎯 사용된 모델:',modelName);
+console.log('🎯 작업 유형:',modelType);
+console.log('🤖 사용된 모델:',modelName);
 console.log('📏 생성된 텍스트 길이:',text.length,'자');
 console.log('📝 생성된 텍스트 (처음 100자):',text.substring(0,100));
 return text;
@@ -843,7 +870,7 @@ ${charNum}번째 캐릭터 (1번=주인공, 2번 이상=조연/악역)
 
 JSON만 출력하고 다른 텍스트는 포함하지 마세요.`;
 
-const result=await callGeminiAPI(prompt);
+const result=await callGeminiAPI(prompt,'advanced');
 if(result){
 try{
 const cleaned=result.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
@@ -940,7 +967,7 @@ const prompt=`당신은 전문 시나리오 작가입니다. 다음 정보를 �
 
 각 막을 구분하여 작성하고, 구체적이고 상세하게 묘사해주세요.`;
 
-const result=await callGeminiAPI(prompt);
+const result=await callGeminiAPI(prompt,'advanced');
 if(result){
 const acts=result.split(/Act\s*[1-5]|①|②|③|④|⑤|\d+\./i).filter(s=>s.trim());
 if(acts.length>=5){
@@ -1277,7 +1304,7 @@ const prompt=`당신은 전문 영화 기획자입니다. 다음 정보를 바�
 
 각 항목을 명확히 구분하여 작성해주세요.`;
 
-const result=await callGeminiAPI(prompt);
+const result=await callGeminiAPI(prompt,'advanced');
 if(result){
 const sections={hook:'',logline:'',synopsis:'',charArch:'',market:''};
 const lines=result.split('\n');
@@ -1321,10 +1348,31 @@ if(field&&count)count.textContent=`${field.value.length}/${max}`;
 saveData();
 }
 
-function generateTitle(){
-const titles=['별을 찾아서','작은 왕자의 여행','우주의 정원사'];
-document.getElementById('title').value=titles[Math.floor(Math.random()*titles.length)];
+async function generateTitle(){
+showLoading();
+const worldview=data.step1.world||'일반';
+const productionType=data.step1.prodType||'영화';
+
+const prompt=`당신은 전문 시나리오 작가입니다. 다음 조건에 맞는 ${productionType} 제목을 3개 제안해주세요.
+
+[조건]
+- 세계관: ${worldview}
+- 제목 길이: 2-6단어
+- 감성적이고 기억에 남는 제목
+- ${worldview} 세계관의 특성을 반영
+
+제목만 번호와 함께 나열해주세요. (예: 1. 제목)`;
+
+const result=await callGeminiAPI(prompt,'quick');
+if(result){
+const titles=result.match(/[1-3][\.\)]\s*(.+)/g);
+if(titles&&titles.length>0){
+const firstTitle=titles[0].replace(/^[1-3][\.\)]\s*/,'').trim();
+document.getElementById('title').value=firstTitle;
 saveData();
+}
+}
+hideLoading();
 }
 
 async function generatePlot(){
@@ -1351,7 +1399,7 @@ const prompt=`당신은 전문 시나리오 작가입니다. 다음 정보를 �
 
 줄거리만 작성하고, 다른 설명은 생략해주세요.`;
 
-const result=await callGeminiAPI(prompt);
+const result=await callGeminiAPI(prompt,'advanced');
 if(result){
 document.getElementById('plot').value=result.trim();
 updateCounter('plot','plotCount',5000);
@@ -1385,7 +1433,7 @@ const prompt=`당신은 전문 시나리오 작가입니다. 다음 정보를 �
 
 세계관 설명만 작성하고, 다른 내용은 생략해주세요.`;
 
-const result=await callGeminiAPI(prompt);
+const result=await callGeminiAPI(prompt,'advanced');
 if(result){
 document.getElementById('worldDesc').value=result.trim();
 updateCounter('worldDesc','worldCount',5000);
